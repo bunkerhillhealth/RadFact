@@ -36,8 +36,15 @@ def get_candidates_and_references_from_csv(csv_path: Path) -> tuple[dict[StudyId
     the expected format."""
     findings_generation_samples = pd.read_csv(csv_path)
     logger.info(f"Loaded {len(findings_generation_samples)} samples from {csv_path}")
-    candidates = findings_generation_samples.set_index("example_id")["prediction"].to_dict()
-    references = findings_generation_samples.set_index("example_id")["target"].to_dict()
+    # candidates = findings_generation_samples.set_index("example_id")["prediction"].to_dict()
+    candidates = (
+        findings_generation_samples["generated_grounded_findings"]
+        .fillna("[]")
+        .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
+        .to_dict()
+    )
+    # references = findings_generation_samples.set_index("example_id")["target"].to_dict()
+    references = findings_generation_samples["report_text__current__parsed"].to_dict()
     return candidates, references
 
 
@@ -76,7 +83,7 @@ def compute_radfact_scores(
     if bootstrap_samples == 0:
         _, results = radfact_metric.compute_metric_score(candidates, references)
         return results
-    bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=10, seed=42)
+    bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
     results_per_sample = radfact_metric.compute_results_per_sample(candidates, references)
     return bootstrapper.compute_bootstrap_metrics(results_per_sample=results_per_sample)
 

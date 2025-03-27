@@ -2,9 +2,9 @@
 
 defaults:
   - default
-  - override endpoints: azure_chat_openai
+  - override endpoints: chat_openai-gpt4o-mini
   - _self_
 
 dataset:
   name: reports_to_phrases
-  csv_path: "<your_path_to_cxr_reports>"
+  csv_path: '<your_path_to_cxr_reports>'

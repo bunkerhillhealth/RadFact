@@ -2,5 +2,5 @@
 
 defaults:
   - default
-  - override endpoints: chat_openai
+  - override endpoints: chat_openai-gpt4o
   - _self_

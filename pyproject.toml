@@ -39,6 +39,9 @@ maintainers = [
 ]
 
 dependencies = [
+    # httpx >= 0.28 fails
+    "httpx==0.27.2",
+
     # azure utils
     "azureml-sdk",
     "azureml-tensorboard",
