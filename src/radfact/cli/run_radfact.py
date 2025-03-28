@@ -36,15 +36,24 @@ def get_candidates_and_references_from_csv(csv_path: Path) -> tuple[dict[StudyId
     the expected format."""
     findings_generation_samples = pd.read_csv(csv_path)
     logger.info(f"Loaded {len(findings_generation_samples)} samples from {csv_path}")
-    # candidates = findings_generation_samples.set_index("example_id")["prediction"].to_dict()
     candidates = (
         findings_generation_samples["generated_grounded_findings"]
         .fillna("[]")
         .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
         .to_dict()
     )
-    # references = findings_generation_samples.set_index("example_id")["target"].to_dict()
-    references = findings_generation_samples["report_text__current__parsed"].to_dict()
+    if "report_text__current__parsed" in findings_generation_samples.columns:
+        references = findings_generation_samples["report_text__current__parsed"].to_dict()
+    elif "report_text__current__concepts" in findings_generation_samples.columns:
+        references = (
+            findings_generation_samples["report_text__current__concepts"]
+            .apply(lambda gr_findings: " ".join(finding for finding in json.loads(gr_findings)))
+            .to_dict()
+        )
+    else:
+        raise ValueError(
+            "No reference column found. Require report_text__current__parsed or report_text__current__concepts"
+        )
     return candidates, references
 
 
