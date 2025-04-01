@@ -347,9 +347,27 @@ class RadFactMetric:
         ), f"Mismatch between input and output samples {len(results_per_sample)=} vs {len(candidates_str_ids)=}"
         return results_per_sample
 
-    def results_per_sample_to_dataframe(self, results_per_sample: PerSampleResultType) -> pd.DataFrame:
+    def results_per_sample_to_dataframe(
+        self,
+        results_per_sample: PerSampleResultType,
+        study_instance_uids: InputDict,
+        series_instance_uids: InputDict,
+        instance_numbers_current_frontal: InputDict,
+    ) -> pd.DataFrame:
         """Convert the results per sample to a DataFrame. This is useful for exporting the results to a CSV file."""
-        score_dicts = [asdict(score) if (score := result.scores) is not None else {} for result in results_per_sample]
+        score_dicts = [
+            (
+                {
+                    "study_instance_uid": study_instance_uids[int(result.study_id)],
+                    "series_instance_uid": series_instance_uids[int(result.study_id)],
+                    "instance_number_current_frontal": instance_numbers_current_frontal[int(result.study_id)],
+                    **asdict(score),
+                }
+                if (score := result.scores) is not None
+                else {}
+            )
+            for result in results_per_sample
+        ]
         return pd.DataFrame(score_dicts)  # Missing scores from invalid results will get filled with NaN
 
     def results_per_sample_to_dicts(self, results_per_sample: PerSampleResultType) -> list[dict[str, Any]]:
