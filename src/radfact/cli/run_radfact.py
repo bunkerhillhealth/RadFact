@@ -154,8 +154,21 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-    input_path = Path(args.input_path)
-    output_dir = Path(args.output_dir)
+
+    if args.input_path.startswith("s3://"):
+        input_path = S3Path(args.input_path)
+    elif args.input_path.startswith("gs://"):
+        input_path = GCSPath(args.input_path)
+    else:
+        input_path = Path(args.input_path)
+
+    if args.output_dir.startswith("s3://"):
+        output_dir = S3Path(args.output_dir)
+    elif args.output_dir.startswith("gs://"):
+        output_dir = GCSPath(args.output_dir)
+    else:
+        output_dir = Path(args.output_dir)
+
     is_narrative_text = args.is_narrative_text
     radfact_config_name = args.radfact_config_name
     phrases_config_name = args.phrases_config_name
@@ -225,7 +238,7 @@ def main() -> None:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(results_bootstrap_json, f, indent=2)
 
-    results_df.to_csv(str(output_path)[:-5] + ".csv")
+    results_df.to_csv(str(output_path)[:-5] + ".csv", index=False)
 
     logger.info(f"Results saved to {output_path}")
 
