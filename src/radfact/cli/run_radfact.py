@@ -228,12 +228,12 @@ def main() -> None:
 
     if isinstance(output_path, (GCSPath, S3Path)):
         with tempfile.TemporaryDirectory() as tempdir:
-            with open(tempdir / "tmp.json", "w", encoding="utf-8") as f:
+            with open(Path(tempdir) / "tmp.json", "w", encoding="utf-8") as f:
                 json.dump(results_bootstrap_json, f, indent=2)
             if isinstance(output_path, GCSPath):
-                GCSClient.upload_file(tempdir / "tmp.json", output_path)
+                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path)
             elif isinstance(output_path, S3Client):
-                S3Client.upload_file(tempdir / "tmp.json", output_path)
+                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path)
     else:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(results_bootstrap_json, f, indent=2)
