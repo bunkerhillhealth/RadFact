@@ -6,10 +6,13 @@
 import argparse
 import json
 import logging
+import tempfile
 from pathlib import Path
 
 import pandas as pd
 
+from radfact.cloud.client import GCSClient, S3Client
+from radfact.cloud.types import GCSPath, S3Path
 from radfact.data_utils.grounded_phrase_list import GroundedPhraseList
 from radfact.llm_utils.report_to_phrases.processor import StudyIdType
 from radfact.metric.bootstrapping import MetricBootstrapper
@@ -42,14 +45,14 @@ def get_candidates_and_references_from_csv(csv_path: Path) -> tuple[dict[StudyId
         .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
         .to_dict()
     )
-    if "report_text__current__parsed" in findings_generation_samples.columns:
-        references = findings_generation_samples["report_text__current__parsed"].to_dict()
-    elif "report_text__current__concepts" in findings_generation_samples.columns:
+    if "report_text__current__concepts" in findings_generation_samples.columns:
         references = (
             findings_generation_samples["report_text__current__concepts"]
             .apply(lambda gr_findings: " ".join(finding for finding in json.loads(gr_findings)))
             .to_dict()
         )
+    if "report_text__current__parsed" in findings_generation_samples.columns:
+        references = findings_generation_samples["report_text__current__parsed"].to_dict()
     else:
         raise ValueError(
             "No reference column found. Require report_text__current__parsed or report_text__current__concepts"
@@ -89,12 +92,14 @@ def compute_radfact_scores(
         phrase_config_name=phrases_config_name,
         is_narrative_text=is_narrative_text,
     )
-    if bootstrap_samples == 0:
-        _, results = radfact_metric.compute_metric_score(candidates, references)
-        return results
+    # if bootstrap_samples == 0:
+    #     _, results = radfact_metric.compute_metric_score(candidates, references)
+    #     return results
+    assert bootstrap_samples >= 1
     bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
     results_per_sample = radfact_metric.compute_results_per_sample(candidates, references)
-    return bootstrapper.compute_bootstrap_metrics(results_per_sample=results_per_sample)
+    results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(results_per_sample)
+    return bootstrapper.compute_bootstrap_metrics(results_per_sample=results_per_sample), results_per_sample_df
 
 
 def main() -> None:
@@ -172,7 +177,7 @@ def main() -> None:
     else:
         candidates, references = get_candidates_and_references_from_json(input_path)
 
-    results = compute_radfact_scores(
+    results_bootstrap_json, results_df = compute_radfact_scores(
         radfact_config_name=radfact_config_name,
         phrases_config_name=phrases_config_name,
         candidates=candidates,
@@ -184,11 +189,14 @@ def main() -> None:
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results
     if is_narrative_text:
         print("RadFact scores for narrative text samples")
-        print_fn(results=results, metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"])
+        print_fn(
+            results=results_bootstrap_json,
+            metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"],
+        )
     else:
         print("RadFact scores for grounded phrases samples")
         print_fn(
-            results=results,
+            results=results_bootstrap_json,
             metrics=[
                 "logical_precision",
                 "logical_recall",
@@ -204,8 +212,21 @@ def main() -> None:
         )
 
     output_path = output_dir / f"radfact_scores_{input_path.stem}.json"
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
+
+    if isinstance(output_path, (GCSPath, S3Path)):
+        with tempfile.TemporaryDirectory() as tempdir:
+            with open(tempdir / "tmp.json", "w", encoding="utf-8") as f:
+                json.dump(results_bootstrap_json, f, indent=2)
+            if isinstance(output_path, GCSPath):
+                GCSClient.upload_file(tempdir / "tmp.json", output_path)
+            elif isinstance(output_path, S3Client):
+                S3Client.upload_file(tempdir / "tmp.json", output_path)
+    else:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(results_bootstrap_json, f, indent=2)
+
+    results_df.to_csv(str(output_path)[:-5] + ".csv")
+
     logger.info(f"Results saved to {output_path}")
 
 
