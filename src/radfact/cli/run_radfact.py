@@ -51,7 +51,7 @@ def get_candidates_and_references_from_csv(csv_path: Path) -> tuple[dict[StudyId
             .apply(lambda gr_findings: " ".join(finding for finding in json.loads(gr_findings)))
             .to_dict()
         )
-    if "report_text__current__parsed" in findings_generation_samples.columns:
+    elif "report_text__current__parsed" in findings_generation_samples.columns:
         references = findings_generation_samples["report_text__current__parsed"].to_dict()
     else:
         raise ValueError(
