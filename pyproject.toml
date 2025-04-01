@@ -39,6 +39,9 @@ maintainers = [
 ]
 
 dependencies = [
+    # httpx >= 0.28 fails
+    "httpx==0.27.2",
+
     # azure utils
     "azureml-sdk",
     "azureml-tensorboard",
@@ -57,6 +60,12 @@ dependencies = [
     # radfact other
     "numpy",
     "pandas",
+
+    # cloud
+    "fsspec[gcs,s3]==2024.9.0",
+    "google_cloud_storage==2.19.0",
+    "boto3==1.37.0",
+    "s3transfer==0.11.3",
 ]
 
 [project.optional-dependencies]

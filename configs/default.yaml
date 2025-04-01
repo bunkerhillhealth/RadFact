@@ -1,9 +1,9 @@
 defaults:
-  - endpoints: chat_openai
+  - endpoints: chat_openai-gpt4o
   - _self_
 
 llm_api:
-  api_version: "2023-07-01-preview"
+  api_version: '2023-07-01-preview'
   max_retries: 10
   temperature: 0.0
   max_tokens: 1024
@@ -19,7 +19,7 @@ processing:
   batch_size: 100
   start_index: 0
   end_index: null
-  output_filename: "outputs.json"
+  output_filename: 'outputs.json'
 
 # The type of cache that should be set for langchain. This can be either "redis" or "sqlite".
 # Sqlite cache is useful for local development, it will be written to ~/.langchain.db
