@@ -34,7 +34,15 @@ def validate_config_file(config_name: str | None) -> None:
             raise FileNotFoundError(message)
 
 
-def get_candidates_and_references_from_csv(csv_path: Path) -> tuple[dict[StudyIdType, str], dict[StudyIdType, str]]:
+def get_candidates_and_references_from_csv(
+    csv_path: Path,
+) -> tuple[
+    dict[StudyIdType, str],
+    dict[StudyIdType, str],
+    dict[StudyIdType, str],
+    dict[StudyIdType, str],
+    dict[StudyIdType, str],
+]:
     """Reads the csv file containing the samples to compute RadFact for and returns the candidates and references in
     the expected format."""
     findings_generation_samples = pd.read_csv(csv_path)
@@ -57,7 +65,37 @@ def get_candidates_and_references_from_csv(csv_path: Path) -> tuple[dict[StudyId
         raise ValueError(
             "No reference column found. Require report_text__current__parsed or report_text__current__concepts"
         )
-    return candidates, references
+    study_instance_uid_current_frontal = (
+        findings_generation_samples["study_instance_uid__current_frontal"].fillna("").to_dict()
+    )
+
+    series_instance_uid_current_frontal = (
+        findings_generation_samples["series_instance_uid__current_frontal"].fillna("").to_dict()
+    )
+
+    instance_number_current_frontal_from_column = (
+        findings_generation_samples["instance_number__current_frontal"].fillna("").to_dict()
+    )
+
+    instance_number_current_frontal_from_path = (
+        findings_generation_samples["reorganized_source_date_shard__current"]
+        .fillna("")
+        .apply(lambda x: int(x.split("/")[-1][0]) if x else "")
+        .to_dict()
+    )
+
+    instance_number_current_frontal = {
+        k: v if v else instance_number_current_frontal_from_path.get(k, "")
+        for k, v in instance_number_current_frontal_from_column.items()
+    }
+
+    return (
+        candidates,
+        references,
+        study_instance_uid_current_frontal,
+        series_instance_uid_current_frontal,
+        instance_number_current_frontal,
+    )
 
 
 def get_candidates_and_references_from_json(
@@ -84,6 +122,9 @@ def compute_radfact_scores(
     phrases_config_name: str | None,
     candidates: InputDict,
     references: InputDict,
+    study_instance_uids: InputDict,
+    series_instance_uids: InputDict,
+    instance_numbers_current_frontal: InputDict,
     is_narrative_text: bool,
     bootstrap_samples: int,
 ) -> dict[str, float]:
@@ -98,7 +139,9 @@ def compute_radfact_scores(
     assert bootstrap_samples >= 1
     bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
     results_per_sample = radfact_metric.compute_results_per_sample(candidates, references)
-    results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(results_per_sample)
+    results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(
+        results_per_sample, study_instance_uids, series_instance_uids, instance_numbers_current_frontal
+    )
     return bootstrapper.compute_bootstrap_metrics(results_per_sample=results_per_sample), results_per_sample_df
 
 
@@ -186,7 +229,9 @@ def main() -> None:
     references: InputDict
 
     if is_narrative_text:
-        candidates, references = get_candidates_and_references_from_csv(input_path)
+        candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
+            get_candidates_and_references_from_csv(input_path)
+        )
     else:
         candidates, references = get_candidates_and_references_from_json(input_path)
 
@@ -197,6 +242,9 @@ def main() -> None:
         references=references,
         is_narrative_text=is_narrative_text,
         bootstrap_samples=bootstrap_samples,
+        study_instance_uids=study_instance_uids,
+        series_instance_uids=series_instance_uids,
+        instance_numbers_current_frontal=instance_numbers_current_frontal,
     )
 
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results
