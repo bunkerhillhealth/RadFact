@@ -358,9 +358,9 @@ class RadFactMetric:
         score_dicts = [
             (
                 {
-                    "study_instance_uid": study_instance_uids[int(result.study_id)],
-                    "series_instance_uid": series_instance_uids[int(result.study_id)],
-                    "instance_number_current_frontal": instance_numbers_current_frontal[int(result.study_id)],
+                    "study_instance_uid__current_frontal": study_instance_uids[int(result.study_id)],
+                    "series_instance_uid__current_frontal": series_instance_uids[int(result.study_id)],
+                    "instance_number__current_frontal": instance_numbers_current_frontal[int(result.study_id)],
                     **asdict(score),
                 }
                 if (score := result.scores) is not None
