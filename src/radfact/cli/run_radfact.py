@@ -127,6 +127,7 @@ def compute_radfact_scores(
     instance_numbers_current_frontal: InputDict,
     is_narrative_text: bool,
     bootstrap_samples: int,
+    ev_text_file_name: str = "system_message_ev_singlephrase.txt",
 ) -> dict[str, float]:
     radfact_metric = RadFactMetric(
         nli_config_name=radfact_config_name,
@@ -138,7 +139,7 @@ def compute_radfact_scores(
     #     return results
     assert bootstrap_samples >= 1
     bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
-    results_per_sample = radfact_metric.compute_results_per_sample(candidates, references)
+    results_per_sample = radfact_metric.compute_results_per_sample(candidates, references, ev_text_file_name)
     results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(
         results_per_sample, study_instance_uids, series_instance_uids, instance_numbers_current_frontal
     )
@@ -196,6 +197,14 @@ def main() -> None:
         default=500,
     )
 
+    parser.add_argument(
+        "--ev_text_file_name",
+        type=str,
+        default="system_message_ev_singlephrase.txt",
+        help="The name of the system message file for the entailment verification processor. This is used to set up "
+        "the entailment verification processor for RadFact. The file should be in the `prompts` directory.",
+    )
+
     args = parser.parse_args()
 
     if args.input_path.startswith("s3://"):
@@ -225,6 +234,8 @@ def main() -> None:
     validate_config_file(radfact_config_name)
     validate_config_file(phrases_config_name)
 
+    assert args.ev_text_file_name.endswith(".txt"), "The entailment verification text file must be a .txt file."
+
     candidates: InputDict
     references: InputDict
 
@@ -245,6 +256,7 @@ def main() -> None:
         study_instance_uids=study_instance_uids,
         series_instance_uids=series_instance_uids,
         instance_numbers_current_frontal=instance_numbers_current_frontal,
+        ev_text_file_name=args.ev_text_file_name,
     )
 
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results
