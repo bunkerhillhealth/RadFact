@@ -47,22 +47,22 @@ def get_candidates_and_references_from_csv(
     the expected format."""
     findings_generation_samples = pd.read_csv(csv_path)
     logger.info(f"Loaded {len(findings_generation_samples)} samples from {csv_path}")
-    # candidates = (
-    #     findings_generation_samples["generated_grounded_findings"]
-    #     .fillna("[]")
-    #     .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
-    #     .to_dict()
-    # )
-    # CHANGE FOR NEW FORMAT OF FINDINGS GENERATION SAMPLES
-    candidates = (
-        findings_generation_samples["generated_grounded_findings"]
-        .fillna("[]")
-        .apply(lambda gr: " ".join(item["finding"] for item in json.loads(gr)))
-        .to_dict()
-    )
-    # import pdb
 
-    # pdb.set_trace()
+    # TODO: Clean this up and allow only new generate output format (currently allows for both old and new)
+    try:
+        candidates = (
+            findings_generation_samples["generated_grounded_findings"]
+            .fillna("[]")
+            .apply(lambda gr: " ".join(item["finding"] for item in json.loads(gr)))
+            .to_dict()
+        )
+    except Exception:
+        candidates = (
+            findings_generation_samples["generated_grounded_findings"]
+            .fillna("[]")
+            .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
+            .to_dict()
+        )
     if "report_text__current__concepts" in findings_generation_samples.columns:
         references = (
             findings_generation_samples["report_text__current__concepts"]
