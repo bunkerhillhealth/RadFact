@@ -47,12 +47,22 @@ def get_candidates_and_references_from_csv(
     the expected format."""
     findings_generation_samples = pd.read_csv(csv_path)
     logger.info(f"Loaded {len(findings_generation_samples)} samples from {csv_path}")
+    # candidates = (
+    #     findings_generation_samples["generated_grounded_findings"]
+    #     .fillna("[]")
+    #     .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
+    #     .to_dict()
+    # )
+    # CHANGE FOR NEW FORMAT OF FINDINGS GENERATION SAMPLES
     candidates = (
         findings_generation_samples["generated_grounded_findings"]
         .fillna("[]")
-        .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
+        .apply(lambda gr: " ".join(item["finding"] for item in json.loads(gr)))
         .to_dict()
     )
+    # import pdb
+
+    # pdb.set_trace()
     if "report_text__current__concepts" in findings_generation_samples.columns:
         references = (
             findings_generation_samples["report_text__current__concepts"]
@@ -202,7 +212,7 @@ def main() -> None:
         type=str,
         default="system_message_ev_singlephrase.txt",
         help="The name of the system message file for the entailment verification processor. This is used to set up "
-        "the entailment verification processor for RadFact. The file should be in the `prompts` directory.",
+        "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
     )
 
     args = parser.parse_args()
