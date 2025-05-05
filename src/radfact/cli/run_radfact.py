@@ -137,7 +137,7 @@ def compute_radfact_scores(
     instance_numbers_current_frontal: InputDict,
     is_narrative_text: bool,
     bootstrap_samples: int,
-    ev_text_file_name: str = "system_message_ev_singlephrase.txt",
+    ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
 ) -> dict[str, float]:
     radfact_metric = RadFactMetric(
         nli_config_name=radfact_config_name,
@@ -210,7 +210,7 @@ def main() -> None:
     parser.add_argument(
         "--ev_text_file_name",
         type=str,
-        default="system_message_ev_singlephrase.txt",
+        default="system_message_ev_singlephrase_updated_with_reasoning.txt",
         help="The name of the system message file for the entailment verification processor. This is used to set up "
         "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
     )

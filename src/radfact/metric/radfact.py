@@ -290,7 +290,7 @@ class RadFactMetric:
         self,
         candidates: InputDict,
         references: InputDict,
-        ev_text_file_name: str = "system_message_ev_singlephrase.txt",
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
     ) -> PerSampleResultType:
         candidates_mm, references_mm = self.convert_input_to_multimodal(candidates, references)
         assert all(
@@ -403,7 +403,7 @@ class RadFactMetric:
         self,
         candidates: InputDict,
         references: InputDict,
-        ev_text_file_name: str = "system_message_ev_singlephrase.txt",
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
     ) -> ReturnType:
         results_per_sample = self.compute_results_per_sample(
             candidates=candidates, references=references, ev_text_file_name=ev_text_file_name
