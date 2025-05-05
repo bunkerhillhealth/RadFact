@@ -47,12 +47,22 @@ def get_candidates_and_references_from_csv(
     the expected format."""
     findings_generation_samples = pd.read_csv(csv_path)
     logger.info(f"Loaded {len(findings_generation_samples)} samples from {csv_path}")
-    candidates = (
-        findings_generation_samples["generated_grounded_findings"]
-        .fillna("[]")
-        .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
-        .to_dict()
-    )
+
+    # TODO: Clean this up and allow only new generate output format (currently allows for both old and new)
+    try:
+        candidates = (
+            findings_generation_samples["generated_grounded_findings"]
+            .fillna("[]")
+            .apply(lambda gr: " ".join(item["finding"] for item in json.loads(gr)))
+            .to_dict()
+        )
+    except Exception:
+        candidates = (
+            findings_generation_samples["generated_grounded_findings"]
+            .fillna("[]")
+            .apply(lambda gr_findings: " ".join(finding for finding, _ in json.loads(gr_findings)))
+            .to_dict()
+        )
     if "report_text__current__concepts" in findings_generation_samples.columns:
         references = (
             findings_generation_samples["report_text__current__concepts"]
@@ -127,6 +137,7 @@ def compute_radfact_scores(
     instance_numbers_current_frontal: InputDict,
     is_narrative_text: bool,
     bootstrap_samples: int,
+    ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
 ) -> dict[str, float]:
     radfact_metric = RadFactMetric(
         nli_config_name=radfact_config_name,
@@ -138,7 +149,7 @@ def compute_radfact_scores(
     #     return results
     assert bootstrap_samples >= 1
     bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
-    results_per_sample = radfact_metric.compute_results_per_sample(candidates, references)
+    results_per_sample = radfact_metric.compute_results_per_sample(candidates, references, ev_text_file_name)
     results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(
         results_per_sample, study_instance_uids, series_instance_uids, instance_numbers_current_frontal
     )
@@ -196,6 +207,14 @@ def main() -> None:
         default=500,
     )
 
+    parser.add_argument(
+        "--ev_text_file_name",
+        type=str,
+        default="system_message_ev_singlephrase_updated_with_reasoning.txt",
+        help="The name of the system message file for the entailment verification processor. This is used to set up "
+        "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
+    )
+
     args = parser.parse_args()
 
     if args.input_path.startswith("s3://"):
@@ -225,6 +244,8 @@ def main() -> None:
     validate_config_file(radfact_config_name)
     validate_config_file(phrases_config_name)
 
+    assert args.ev_text_file_name.endswith(".txt"), "The entailment verification text file must be a .txt file."
+
     candidates: InputDict
     references: InputDict
 
@@ -245,6 +266,7 @@ def main() -> None:
         study_instance_uids=study_instance_uids,
         series_instance_uids=series_instance_uids,
         instance_numbers_current_frontal=instance_numbers_current_frontal,
+        ev_text_file_name=args.ev_text_file_name,
     )
 
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results

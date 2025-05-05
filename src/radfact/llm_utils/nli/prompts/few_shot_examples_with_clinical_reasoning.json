@@ -1,0 +1,713 @@
+[
+  {
+    "example_id": "few_shot1",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "A new right pleural effusion has developed right lower lung field.",
+        "A new infiltrate has developed right lower lung field.",
+        "Left hemithorax remains clear."
+      ],
+      "phrases_B": [
+        "Heart size is normal.",
+        "There is an interstitial infiltrate at the left lung base.",
+        "Abnormal increased interstitial markings in the right lower lung field.",
+        "Abnormal increased interstitial markings in the left mid lung."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [],
+          "phrase": "A new right pleural effusion has developed right lower lung field.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "A new infiltrate has developed right lower lung field.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "There is an interstitial infiltrate at the left lung base.",
+            "Abnormal increased interstitial markings in the left mid lung."
+          ],
+          "phrase": "Left hemithorax remains clear.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'There is an interstitial infiltrate at the left lung base.', which negates the hypothesis."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [],
+          "phrase": "Heart size is normal.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "Left hemithorax remains clear."
+          ],
+          "phrase": "There is an interstitial infiltrate at the left lung base.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Left hemithorax remains clear.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "A new infiltrate has developed right lower lung field."
+          ],
+          "phrase": "Abnormal increased interstitial markings in the right lower lung field.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'A new infiltrate has developed right lower lung field.'."
+        },
+        {
+          "evidence": [
+            "Left hemithorax remains clear."
+          ],
+          "phrase": "Abnormal increased interstitial markings in the left mid lung.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Left hemithorax remains clear.', which negates the hypothesis."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot2",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "Heart size is normal.",
+        "There is a small calcified granuloma in the right lower lung field which is stable.",
+        "Lungs are free of acute infiltrates."
+      ],
+      "phrases_B": [
+        "Heart size is normal.",
+        "There has been mild overall improved aeration.",
+        "There is mild residual infiltrate in the left lung base."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "Heart size is normal."
+          ],
+          "phrase": "Heart size is normal.",
+          "status": "entailment",
+          "reasoning": "The reference explicitly states the same or equivalent finding."
+        },
+        {
+          "evidence": [],
+          "phrase": "There is a small calcified granuloma in the right lower lung field which is stable.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "There is mild residual infiltrate in the left lung base."
+          ],
+          "phrase": "Lungs are free of acute infiltrates.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'There is mild residual infiltrate in the left lung base.', which negates the hypothesis."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [
+            "Heart size is normal."
+          ],
+          "phrase": "Heart size is normal.",
+          "status": "entailment",
+          "reasoning": "The reference explicitly states the same or equivalent finding."
+        },
+        {
+          "evidence": [],
+          "phrase": "There has been mild overall improved aeration.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "Lungs are free of acute infiltrates."
+          ],
+          "phrase": "There is mild residual infiltrate in the left lung base.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Lungs are free of acute infiltrates.', which negates the hypothesis."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot3",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "The cardiomediastinal silhouette appears unremarkable.",
+        "Interstitial markings are increased throughout both lungs.",
+        "There is mild improved aeration in the left lower lung field."
+      ],
+      "phrases_B": [
+        "The lungs are clear.",
+        "The cardiomediastinal silhouette is unremarkable.",
+        "There are no pleural effusions."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "The cardiomediastinal silhouette is unremarkable."
+          ],
+          "phrase": "The cardiomediastinal silhouette appears unremarkable.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The cardiomediastinal silhouette is unremarkable.'."
+        },
+        {
+          "evidence": [
+            "The lungs are clear."
+          ],
+          "phrase": "Interstitial markings are increased throughout both lungs.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'The lungs are clear.', which negates the hypothesis."
+        },
+        {
+          "evidence": [],
+          "phrase": "There is mild improved aeration in the left lower lung field.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [
+            "Interstitial markings are increased throughout both lungs."
+          ],
+          "phrase": "The lungs are clear.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Interstitial markings are increased throughout both lungs.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "The cardiomediastinal silhouette appears unremarkable."
+          ],
+          "phrase": "The cardiomediastinal silhouette is unremarkable.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The cardiomediastinal silhouette appears unremarkable.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "There are no pleural effusions.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot4",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "The heart size is normal.",
+        "Left lung is essentially clear.",
+        "There are pleural and parenchymal densities peripherally in the right mid and lower lung field."
+      ],
+      "phrases_B": [
+        "Heart size is normal.",
+        "Pacemaker is in place.",
+        "Lungs are free of acute infiltrates."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "Heart size is normal."
+          ],
+          "phrase": "The heart size is normal.",
+          "status": "entailment",
+          "reasoning": "The reference explicitly states the same or equivalent finding."
+        },
+        {
+          "evidence": [],
+          "phrase": "Left lung is essentially clear.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "There are pleural and parenchymal densities peripherally in the right mid and lower lung field.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [
+            "The heart size is normal."
+          ],
+          "phrase": "Heart size is normal.",
+          "status": "entailment",
+          "reasoning": "The reference explicitly states the same or equivalent finding."
+        },
+        {
+          "evidence": [],
+          "phrase": "Pacemaker is in place.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "Lungs are free of acute infiltrates.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot5",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "Heart size is normal.",
+        "There is a stable nodule in the left mid lung field.",
+        "Lungs are essentially clear."
+      ],
+      "phrases_B": [
+        "Heart remains borderline enlarged.",
+        "Previously present blunting of the right costophrenic angle has essentially resolved.",
+        "Lungs are clear.",
+        "Pacemaker remains in place."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "Heart remains borderline enlarged."
+          ],
+          "phrase": "Heart size is normal.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Heart remains borderline enlarged.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "Lungs are clear."
+          ],
+          "phrase": "There is a stable nodule in the left mid lung field.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Lungs are clear.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "Lungs are clear."
+          ],
+          "phrase": "Lungs are essentially clear.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Lungs are clear.'."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [
+            "Heart size is normal."
+          ],
+          "phrase": "Heart remains borderline enlarged.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Heart size is normal.', which negates the hypothesis."
+        },
+        {
+          "evidence": [],
+          "phrase": "Previously present blunting of the right costophrenic angle has essentially resolved.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "Lungs are essentially clear."
+          ],
+          "phrase": "Lungs are clear.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Lungs are essentially clear.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "Pacemaker remains in place.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot6",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "The heart is within normal limits.",
+        "Pulmonary vascularity is unremarkable.",
+        "There is blunting of the left costophrenic angle with pleural thickening.",
+        "There is nodular appearance in the left lung base."
+      ],
+      "phrases_B": [
+        "Some increased density in the right lung base.",
+        "The left lung is clear.",
+        "The heart is not enlarged.",
+        "The bony structures are intact."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "The heart is not enlarged."
+          ],
+          "phrase": "The heart is within normal limits.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is not enlarged.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "Pulmonary vascularity is unremarkable.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "The left lung is clear."
+          ],
+          "phrase": "There is blunting of the left costophrenic angle with pleural thickening.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'The left lung is clear.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "The left lung is clear."
+          ],
+          "phrase": "There is nodular appearance in the left lung base.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'The left lung is clear.', which negates the hypothesis."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [],
+          "phrase": "Some increased density in the right lung base.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "There is blunting of the left costophrenic angle with pleural thickening.",
+            "There is nodular appearance in the left lung base."
+          ],
+          "phrase": "The left lung is clear.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'There is blunting of the left costophrenic angle with pleural thickening.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "The heart is within normal limits."
+          ],
+          "phrase": "The heart is not enlarged.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is within normal limits.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "The bony structures are intact.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot7",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "The heart is within normal limits.",
+        "No infiltrate is seen.",
+        "No pleural effusion is seen."
+      ],
+      "phrases_B": [
+        "Nodular densities in both lungs.",
+        "Heart is normal in size.",
+        "No pneumothorax is seen."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "Heart is normal in size."
+          ],
+          "phrase": "The heart is within normal limits.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Heart is normal in size.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "No infiltrate is seen.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "No pleural effusion is seen.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [],
+          "phrase": "Nodular densities in both lungs.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "The heart is within normal limits."
+          ],
+          "phrase": "Heart is normal in size.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is within normal limits.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "No pneumothorax is seen.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot8",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "Scarring or atelectasis in the left lung base is seen.",
+        "Cardiomediastinum is unremarkable.",
+        "Degenerative changes are seen throughout the spine."
+      ],
+      "phrases_B": [
+        "The lungs are clear.",
+        "The cardiomediastinal silhouette is unremarkable.",
+        "There are no pleural effusions."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "The lungs are clear."
+          ],
+          "phrase": "Scarring or atelectasis in the left lung base is seen.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'The lungs are clear.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "The cardiomediastinal silhouette is unremarkable."
+          ],
+          "phrase": "Cardiomediastinum is unremarkable.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The cardiomediastinal silhouette is unremarkable.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "Degenerative changes are seen throughout the spine.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [
+            "Scarring or atelectasis in the left lung base is seen."
+          ],
+          "phrase": "The lungs are clear.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'Scarring or atelectasis in the left lung base is seen.', which negates the hypothesis."
+        },
+        {
+          "evidence": [
+            "Cardiomediastinum is unremarkable."
+          ],
+          "phrase": "The cardiomediastinal silhouette is unremarkable.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Cardiomediastinum is unremarkable.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "There are no pleural effusions.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot9",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "A moderate size left pleural effusion slightly larger in size.",
+        "Pacemaker is unchanged.",
+        "Right lung is clear.",
+        "There is persistent consolidation in the left lung base."
+      ],
+      "phrases_B": [
+        "There are small bilateral pleural effusions that have developed since prior study.",
+        "Left basilar consolidation is present.",
+        "The cardiomediastinal silhouette is within normal limits.",
+        "No acute chest wall abnormality is radiographically evident."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "There are small bilateral pleural effusions that have developed since prior study."
+          ],
+          "phrase": "A moderate size left pleural effusion slightly larger in size.",
+          "status": "contradiction",
+          "reasoning": "The reference provides a contradictory observation: 'There are small bilateral pleural effusions that have developed since prior study.', which negates the hypothesis."
+        },
+        {
+          "evidence": [],
+          "phrase": "Pacemaker is unchanged.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "Right lung is clear.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "There is persistent consolidation in the left lung base.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [],
+          "phrase": "There are small bilateral pleural effusions that have developed since prior study.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "There is persistent consolidation in the left lung base."
+          ],
+          "phrase": "Left basilar consolidation is present.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'There is persistent consolidation in the left lung base.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "The cardiomediastinal silhouette is within normal limits.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "No acute chest wall abnormality is radiographically evident.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ]
+    }
+  },
+  {
+    "example_id": "few_shot10",
+    "study_id": "nan",
+    "input": {
+      "phrases_A": [
+        "The heart is within normal limits.",
+        "Pulmonary vascularity is unremarkable.",
+        "There are patchy bibasilar infiltrates."
+      ],
+      "phrases_B": [
+        "The left-sided pneumothorax has enlarged.",
+        "The left-sided pigtail chest tube remains in place.",
+        "Heart size is normal.",
+        "There is pulmonary consolidation."
+      ]
+    },
+    "rationale": "rationale",
+    "output": {
+      "phrases_A_evidenced": [
+        {
+          "evidence": [
+            "Heart size is normal."
+          ],
+          "phrase": "The heart is within normal limits.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Heart size is normal.'."
+        },
+        {
+          "evidence": [],
+          "phrase": "Pulmonary vascularity is unremarkable.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "There are patchy bibasilar infiltrates.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        }
+      ],
+      "phrases_B_evidenced": [
+        {
+          "evidence": [],
+          "phrase": "The left-sided pneumothorax has enlarged.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [],
+          "phrase": "The left-sided pigtail chest tube remains in place.",
+          "status": "neutral",
+          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+        },
+        {
+          "evidence": [
+            "The heart is within normal limits."
+          ],
+          "phrase": "Heart size is normal.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is within normal limits.'."
+        },
+        {
+          "evidence": [
+            "There are patchy bibasilar infiltrates."
+          ],
+          "phrase": "There is pulmonary consolidation.",
+          "status": "entailment",
+          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'There are patchy bibasilar infiltrates.'."
+        }
+      ]
+    }
+  }
+]

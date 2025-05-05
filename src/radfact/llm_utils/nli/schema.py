@@ -4,10 +4,11 @@
 #  ------------------------------------------------------------------------------------------
 
 import json
+import logging
 from enum import Enum
 from pathlib import Path
 from typing import Any
-import logging
+
 from pydantic import BaseModel, Field, root_validator
 
 from radfact.data_utils.grounded_phrase_list import GroundedPhraseList
@@ -69,6 +70,7 @@ class ComparisonQuerySinglePhrase(BaseModel):
 class EvidencedPhrase(BaseModel):
     phrase: str = Field(description="Phrase from report.")
     evidence: list[str] = Field(description="Phrase(s) from reference report supporting the logical state.")
+    reasoning: str = Field(description="Reasoning for the logical state.")
     # Note that the status could either be NLIState or EVState
     status: str = Field(description="Logical state of phrase given reference report.")
 
