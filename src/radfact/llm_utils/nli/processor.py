@@ -50,7 +50,7 @@ class MetricDataframeKeys(str, Enum):
 
 
 def get_ev_processor_singlephrase(
-    log_dir: Path, ev_text_file_name: str = "system_message_ev_singlephrase.txt"
+    log_dir: Path, ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt"
 ) -> StructuredProcessor[ComparisonQuerySinglePhrase, EvidencedPhrase]:
     """
     Helper function to load the NLI processor with the correct system prompt and few-shot examples.
@@ -102,7 +102,7 @@ class ReportGroundingNLIProcessor(BaseProcessor[NLIQuerySample, NLISample]):
     def __init__(
         self,
         format_query_fn: Callable[..., Any],
-        ev_text_file_name: str = "system_message_ev_singlephrase.txt",
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
     ) -> None:
         super().__init__()
         self.format_query_fn = format_query_fn
@@ -201,7 +201,7 @@ def get_report_nli_engine(
     cfg: DictConfig,
     candidates: dict[str, GroundedPhraseList],
     references: dict[str, GroundedPhraseList],
-    ev_text_file_name: str = "system_message_ev_singlephrase.txt",
+    ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
 ) -> LLMEngine:
     output_folder = get_subfolder(root=OUTPUT_DIR, subfolder=RADFACT_SUBFOLDER)
     nli_report_processor = ReportGroundingNLIProcessor(
