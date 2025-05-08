@@ -66,7 +66,8 @@ def get_ev_processor_singlephrase(
     assert ev_text_file_name.endswith(".txt"), "The system prompt file must be a .txt file."
 
     system_prompt_path = PROMPTS_DIR / ev_text_file_name
-    few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_with_clinical_reasoning.json"
+    # few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_with_clinical_reasoning.json"
+    few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_updated_with_entailment_for_negatives.json"
     system_prompt = system_prompt_path.read_text()
     logger.info(f"Using system prompt: \n {system_prompt}")
     few_shot_examples = load_examples_from_json(json_path=few_shot_examples_path, binary=True)
