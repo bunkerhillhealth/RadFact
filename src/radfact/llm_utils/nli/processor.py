@@ -50,7 +50,9 @@ class MetricDataframeKeys(str, Enum):
 
 
 def get_ev_processor_singlephrase(
-    log_dir: Path, ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt"
+    log_dir: Path,
+    ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+    allow_omitted_negatives: bool = False,
 ) -> StructuredProcessor[ComparisonQuerySinglePhrase, EvidencedPhrase]:
     """
     Helper function to load the NLI processor with the correct system prompt and few-shot examples.
@@ -63,11 +65,17 @@ def get_ev_processor_singlephrase(
     :return: Processor for entailment verification.
     """
 
+    if allow_omitted_negatives:
+        ev_text_file_name = "system_message_ev_singlephrase_updated_with_reasoning_negatives.txt"
+
     assert ev_text_file_name.endswith(".txt"), "The system prompt file must be a .txt file."
 
     system_prompt_path = PROMPTS_DIR / ev_text_file_name
-    # few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_with_clinical_reasoning.json"
-    few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_updated_with_entailment_for_negatives.json"
+
+    if allow_omitted_negatives:
+        few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_updated_with_entailment_for_negatives.json"
+    else:
+        few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_with_clinical_reasoning.json"
     system_prompt = system_prompt_path.read_text()
     logger.info(f"Using system prompt: \n {system_prompt}")
     few_shot_examples = load_examples_from_json(json_path=few_shot_examples_path, binary=True)
@@ -104,11 +112,14 @@ class ReportGroundingNLIProcessor(BaseProcessor[NLIQuerySample, NLISample]):
         self,
         format_query_fn: Callable[..., Any],
         ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+        allow_omitted_negatives: bool = False,
     ) -> None:
         super().__init__()
         self.format_query_fn = format_query_fn
         self.phrase_processor = get_ev_processor_singlephrase(
-            log_dir=OUTPUT_DIR / "ev_processor_logs", ev_text_file_name=ev_text_file_name
+            log_dir=OUTPUT_DIR / "ev_processor_logs",
+            ev_text_file_name=ev_text_file_name,
+            allow_omitted_negatives=allow_omitted_negatives,
         )
         # Logging errors
         self.num_llm_failures = 0
@@ -203,11 +214,13 @@ def get_report_nli_engine(
     candidates: dict[str, GroundedPhraseList],
     references: dict[str, GroundedPhraseList],
     ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+    allow_omitted_negatives: bool = False,
 ) -> LLMEngine:
     output_folder = get_subfolder(root=OUTPUT_DIR, subfolder=RADFACT_SUBFOLDER)
     nli_report_processor = ReportGroundingNLIProcessor(
         format_query_fn=format_row_to_nli_query_sample,
         ev_text_file_name=ev_text_file_name,
+        allow_omitted_negatives=allow_omitted_negatives,
     )
     dataset_df = pd.DataFrame(
         {

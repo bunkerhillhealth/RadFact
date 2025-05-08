@@ -291,6 +291,7 @@ class RadFactMetric:
         candidates: InputDict,
         references: InputDict,
         ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+        allow_omitted_negatives: bool = False,
     ) -> PerSampleResultType:
         candidates_mm, references_mm = self.convert_input_to_multimodal(candidates, references)
         assert all(
@@ -310,7 +311,11 @@ class RadFactMetric:
         references_str_ids = {str(study_id): sequence for study_id, sequence in references_mm.items()}
 
         llm_ev_engine = get_report_nli_engine(
-            self.llm_nli_cfg, candidates_str_ids, references_str_ids, ev_text_file_name
+            self.llm_nli_cfg,
+            candidates_str_ids,
+            references_str_ids,
+            ev_text_file_name,
+            allow_omitted_negatives=allow_omitted_negatives,
         )
         processed_samples: list[NLISample] = llm_ev_engine.run()
         if llm_ev_engine.aggregated_processor_stats:
@@ -404,9 +409,13 @@ class RadFactMetric:
         candidates: InputDict,
         references: InputDict,
         ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+        allow_omitted_negatives: bool = False,
     ) -> ReturnType:
         results_per_sample = self.compute_results_per_sample(
-            candidates=candidates, references=references, ev_text_file_name=ev_text_file_name
+            candidates=candidates,
+            references=references,
+            ev_text_file_name=ev_text_file_name,
+            allow_omitted_negatives=allow_omitted_negatives,
         )
         return self.aggregate_results(results_per_sample)
 

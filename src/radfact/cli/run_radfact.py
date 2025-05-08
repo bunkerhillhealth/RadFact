@@ -138,6 +138,7 @@ def compute_radfact_scores(
     is_narrative_text: bool,
     bootstrap_samples: int,
     ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+    allow_omitted_negatives: bool = False,
 ) -> dict[str, float]:
     radfact_metric = RadFactMetric(
         nli_config_name=radfact_config_name,
@@ -149,7 +150,9 @@ def compute_radfact_scores(
     #     return results
     assert bootstrap_samples >= 1
     bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
-    results_per_sample = radfact_metric.compute_results_per_sample(candidates, references, ev_text_file_name)
+    results_per_sample = radfact_metric.compute_results_per_sample(
+        candidates, references, ev_text_file_name, allow_omitted_negatives
+    )
     results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(
         results_per_sample, study_instance_uids, series_instance_uids, instance_numbers_current_frontal
     )
@@ -215,6 +218,13 @@ def main() -> None:
         "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
     )
 
+    parser.add_argument(
+        "--allow_omitted_negatives",
+        action="store_true",
+        help="Whether to allow omitted negatives in the RadFact metric. If true, the RadFact metric will not penalize "
+        "for omitted negatives. ",
+    )
+
     args = parser.parse_args()
 
     if args.input_path.startswith("s3://"):
@@ -267,6 +277,7 @@ def main() -> None:
         series_instance_uids=series_instance_uids,
         instance_numbers_current_frontal=instance_numbers_current_frontal,
         ev_text_file_name=args.ev_text_file_name,
+        allow_omitted_negatives=args.allow_omitted_negatives,
     )
 
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results

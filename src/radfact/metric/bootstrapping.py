@@ -40,6 +40,8 @@ class MetricBootstrapper:
         candidates: InputDict | None = None,
         references: InputDict | None = None,
         results_per_sample: PerSampleResultType | None = None,
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+        allow_omitted_negatives: bool = False,
     ) -> Generator[ReturnType, None, None]:
         """Compute the bootstrap results for a radfact metric by drawing `num_samples` samples with replacement,
         and re-computing the metric.
@@ -53,7 +55,12 @@ class MetricBootstrapper:
         """
         if results_per_sample is None:
             assert candidates is not None and references is not None
-            results_per_sample = self.metric.compute_results_per_sample(candidates=candidates, references=references)
+            results_per_sample = self.metric.compute_results_per_sample(
+                candidates=candidates,
+                references=references,
+                ev_text_file_name=ev_text_file_name,
+                allow_omitted_negatives=allow_omitted_negatives,
+            )
         assert results_per_sample is not None  # for mypy
         num_records = len(results_per_sample)
         if num_records == 0:
@@ -88,6 +95,8 @@ class MetricBootstrapper:
         candidates: InputDict | None = None,
         references: InputDict | None = None,
         results_per_sample: PerSampleResultType | None = None,
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+        allow_omitted_negatives: bool = False,
     ) -> dict[str, float]:
         """Calculate bootstrap statistics for RadFact metric that has intermediate per-sample results.
 
@@ -101,7 +110,11 @@ class MetricBootstrapper:
             e.g. `submetric/mean`, `submetric/stderr`, etc.
         """
         boot_results_generator = self._generate_bootstrap_results(
-            candidates=candidates, references=references, results_per_sample=results_per_sample
+            candidates=candidates,
+            references=references,
+            results_per_sample=results_per_sample,
+            ev_text_file_name=ev_text_file_name,
+            allow_omitted_negatives=allow_omitted_negatives,
         )
         boot_main_scores: list[float] = []
         boot_detailed_scores_dicts: list[dict[str, float]] = []
