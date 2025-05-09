@@ -37,7 +37,7 @@
           ],
           "phrase": "Left hemithorax remains clear.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'There is an interstitial infiltrate at the left lung base.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'There is an interstitial infiltrate at the left lung base.', which negates the hypothesis."
         }
       ],
       "phrases_B_evidenced": [
@@ -53,7 +53,7 @@
           ],
           "phrase": "There is an interstitial infiltrate at the left lung base.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Left hemithorax remains clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Left hemithorax remains clear.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -69,7 +69,7 @@
           ],
           "phrase": "Abnormal increased interstitial markings in the left mid lung.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Left hemithorax remains clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Left hemithorax remains clear.', which negates the hypothesis."
         }
       ]
     }
@@ -112,7 +112,7 @@
           ],
           "phrase": "Lungs are free of acute infiltrates.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'There is mild residual infiltrate in the left lung base.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'There is mild residual infiltrate in the left lung base.', which negates the hypothesis."
         }
       ],
       "phrases_B_evidenced": [
@@ -136,7 +136,7 @@
           ],
           "phrase": "There is mild residual infiltrate in the left lung base.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Lungs are free of acute infiltrates.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Lungs are free of acute infiltrates.', which negates the hypothesis."
         }
       ]
     }
@@ -173,7 +173,7 @@
           ],
           "phrase": "Interstitial markings are increased throughout both lungs.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'The lungs are clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'The lungs are clear.', which negates the hypothesis."
         },
         {
           "evidence": [],
@@ -189,7 +189,7 @@
           ],
           "phrase": "The lungs are clear.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Interstitial markings are increased throughout both lungs.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Interstitial markings are increased throughout both lungs.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -296,7 +296,7 @@
           ],
           "phrase": "Heart size is normal.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Heart remains borderline enlarged.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Heart remains borderline enlarged.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -304,7 +304,7 @@
           ],
           "phrase": "There is a stable nodule in the left mid lung field.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Lungs are clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Lungs are clear.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -322,7 +322,7 @@
           ],
           "phrase": "Heart remains borderline enlarged.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Heart size is normal.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Heart size is normal.', which negates the hypothesis."
         },
         {
           "evidence": [],
@@ -387,7 +387,7 @@
           ],
           "phrase": "There is blunting of the left costophrenic angle with pleural thickening.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'The left lung is clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'The left lung is clear.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -395,7 +395,7 @@
           ],
           "phrase": "There is nodular appearance in the left lung base.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'The left lung is clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'The left lung is clear.', which negates the hypothesis."
         }
       ],
       "phrases_B_evidenced": [
@@ -412,7 +412,7 @@
           ],
           "phrase": "The left lung is clear.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'There is blunting of the left costophrenic angle with pleural thickening.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'There is blunting of the left costophrenic angle with pleural thickening.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -518,7 +518,7 @@
           ],
           "phrase": "Scarring or atelectasis in the left lung base is seen.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'The lungs are clear.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'The lungs are clear.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -542,7 +542,7 @@
           ],
           "phrase": "The lungs are clear.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'Scarring or atelectasis in the left lung base is seen.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'Scarring or atelectasis in the left lung base is seen.', which negates the hypothesis."
         },
         {
           "evidence": [
@@ -587,7 +587,7 @@
           ],
           "phrase": "A moderate size left pleural effusion slightly larger in size.",
           "status": "contradiction",
-          "reasoning": "The reference provides a contradictory observation: 'There are small bilateral pleural effusions that have developed since prior study.', which negates the hypothesis."
+          "reasoning": "The reference provides a contradictory observation 'There are small bilateral pleural effusions that have developed since prior study.', which negates the hypothesis."
         },
         {
           "evidence": [],
