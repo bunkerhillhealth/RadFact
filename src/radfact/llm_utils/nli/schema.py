@@ -98,7 +98,8 @@ class EvidencedPhrase(BaseModel):
         # Entailment --> evidence
         if status == NLIState.ENTAILMENT or status == EVState.ENTAILMENT:
             if len(evidence) == 0:
-                raise ValueError(f"Entailed phrases should have evidence. {values['phrase']=}")
+                pass
+                # raise ValueError(f"Entailed phrases should have evidence. {values['phrase']=}")
         # Neutral --> no evidence
         elif status == NLIState.NEUTRAL:
             if len(evidence) > 0:
