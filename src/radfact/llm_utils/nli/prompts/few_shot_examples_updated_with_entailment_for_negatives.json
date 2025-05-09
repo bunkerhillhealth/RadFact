@@ -61,7 +61,7 @@
           ],
           "phrase": "Abnormal increased interstitial markings in the right lower lung field.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'A new infiltrate has developed right lower lung field.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'A new infiltrate has developed right lower lung field.'."
         },
         {
           "evidence": [
@@ -165,7 +165,7 @@
           ],
           "phrase": "The cardiomediastinal silhouette appears unremarkable.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The cardiomediastinal silhouette is unremarkable.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The cardiomediastinal silhouette is unremarkable.'."
         },
         {
           "evidence": [
@@ -197,7 +197,7 @@
           ],
           "phrase": "The cardiomediastinal silhouette is unremarkable.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The cardiomediastinal silhouette appears unremarkable.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The cardiomediastinal silhouette appears unremarkable.'."
         },
         {
           "evidence": [],
@@ -312,7 +312,7 @@
           ],
           "phrase": "Lungs are essentially clear.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Lungs are clear.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'Lungs are clear.'."
         }
       ],
       "phrases_B_evidenced": [
@@ -336,7 +336,7 @@
           ],
           "phrase": "Lungs are clear.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Lungs are essentially clear.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'Lungs are essentially clear.'."
         },
         {
           "evidence": [],
@@ -373,7 +373,7 @@
           ],
           "phrase": "The heart is within normal limits.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is not enlarged.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The heart is not enlarged.'."
         },
         {
           "evidence": [],
@@ -420,7 +420,7 @@
           ],
           "phrase": "The heart is not enlarged.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is within normal limits.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The heart is within normal limits.'."
         },
         {
           "evidence": [],
@@ -455,7 +455,7 @@
           ],
           "phrase": "The heart is within normal limits.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Heart is normal in size.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'Heart is normal in size.'."
         },
         {
           "evidence": [],
@@ -483,7 +483,7 @@
           ],
           "phrase": "Heart is normal in size.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is within normal limits.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The heart is within normal limits.'."
         },
         {
           "evidence": [],
@@ -526,7 +526,7 @@
           ],
           "phrase": "Cardiomediastinum is unremarkable.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The cardiomediastinal silhouette is unremarkable.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The cardiomediastinal silhouette is unremarkable.'."
         },
         {
           "evidence": [],
@@ -550,7 +550,7 @@
           ],
           "phrase": "The cardiomediastinal silhouette is unremarkable.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Cardiomediastinum is unremarkable.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'Cardiomediastinum is unremarkable.'."
         },
         {
           "evidence": [],
@@ -621,7 +621,7 @@
           ],
           "phrase": "Left basilar consolidation is present.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'There is persistent consolidation in the left lung base.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'There is persistent consolidation in the left lung base.'."
         },
         {
           "evidence": [],
@@ -663,7 +663,7 @@
           ],
           "phrase": "The heart is within normal limits.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'Heart size is normal.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'Heart size is normal.'."
         },
         {
           "evidence": [],
@@ -697,7 +697,7 @@
           ],
           "phrase": "Heart size is normal.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'The heart is within normal limits.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'The heart is within normal limits.'."
         },
         {
           "evidence": [
@@ -705,7 +705,7 @@
           ],
           "phrase": "There is pulmonary consolidation.",
           "status": "entailment",
-          "reasoning": "The reference supports this finding through related radiologic evidence such as: 'There are patchy bibasilar infiltrates.'."
+          "reasoning": "The reference supports this finding through related radiologic evidence such as 'There are patchy bibasilar infiltrates.'."
         }
       ]
     }
