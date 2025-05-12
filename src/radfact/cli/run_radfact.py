@@ -34,7 +34,7 @@ def validate_config_file(config_name: str | None) -> None:
             raise FileNotFoundError(message)
 
 
-def get_candidates_and_references_from_csv(
+def get_candidates_and_references(
     csv_path: Path,
     input_path_reference: GCSPath,
 ) -> tuple[
@@ -65,17 +65,19 @@ def get_candidates_and_references_from_csv(
 
     # Reference LazyFrame
     reference_lf = (
-        pl.scan_parquet(str(input_path_reference))
+        pl.scan_parquet(f"{str(input_path_reference)}/")  # Add trailing slash for polars to read the folder
         .filter(pl.col("task") == "report_generation")
         .select(
             [
                 "datapoint_id",
                 "task",
                 "annotation.annotated_concepts",
+                "annotation.report_sections.findings",
+                "annotation.report_sections.impression",
                 "datapoint_id_prefix",
             ]
-        )
-    )
+        ),
+    )[0]
 
     # Join on both datapoint_id and prefix
     reference_lf = reference_lf.join(
@@ -89,25 +91,44 @@ def get_candidates_and_references_from_csv(
     findings_generation_samples = findings_generation_samples.collect()
     reference_df = reference_lf.collect()
 
-    values = (
+    # Combine the findings and impression sections of the reference into a single string
+    reference_df = reference_df.with_columns(
+        pl.concat_str(
+            [
+                pl.col("annotation.report_sections.findings").fill_null(""),
+                pl.col("annotation.report_sections.impression").fill_null(""),
+            ],
+            separator=" ",
+            null_char="",
+        ).alias("combined_findings"),
+    )
+
+    # Get candidates dict in format expected downstream
+    candidate_values = (
         findings_generation_samples.with_columns(pl.col("generated_grounded_findings").fill_null("[]"))
         .select("generated_grounded_findings")
         .to_series()
-        .apply(lambda gr: " ".join(item["finding"] for item in json.loads(gr)))
+        .map_elements(lambda gr: " ".join(item["finding"] for item in json.loads(gr)), return_dtype=pl.String)
     )
+    candidates = dict(enumerate(candidate_values))
 
-    # Convert to dict with row index as key
-    candidates = dict(enumerate(values))
-
-    values = (
-        reference_df.with_columns(pl.col("annotation.annotated_concepts").fill_null("[]"))
-        .select("annotation.annotated_concepts")
+    # Get reference dict in format expected downstream. Using findings + impression as the reference text
+    reference_values = (
+        reference_df.with_columns(
+            pl.concat_str(
+                [
+                    pl.col("annotation.report_sections.findings").fill_null(""),
+                    pl.col("annotation.report_sections.impression").fill_null(""),
+                ],
+                separator=" ",
+            ).alias("combined_findings")
+        )
+        .select("combined_findings")
         .to_series()
-        .apply(lambda gr: " ".join(finding for finding in json.loads(gr)))
     )
 
     # Convert to dict with row index as key
-    references = dict(enumerate(values))
+    references = dict(enumerate(reference_values))
 
     # For study_uid
     study_instance_uid_current_frontal = dict(
@@ -121,7 +142,7 @@ def get_candidates_and_references_from_csv(
 
     # For instance_number
     instance_number_current_frontal = dict(
-        enumerate(findings_generation_samples["current_frontal_metadata.instance_number"].fill_null(""))
+        enumerate(findings_generation_samples["current_frontal_metadata.instance_number"].fill_null(0)).cast(pl.Int32)
     )
 
     return (
@@ -298,7 +319,7 @@ def main() -> None:
 
     if is_narrative_text:
         candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
-            get_candidates_and_references_from_csv(input_path_candidate, input_path_reference)
+            get_candidates_and_references(input_path_candidate, input_path_reference)
         )
     else:
         # candidates, references = get_candidates_and_references_from_json(input_path)
