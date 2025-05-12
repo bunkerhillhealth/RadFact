@@ -63,10 +63,15 @@ def get_candidates_and_references(
     # Select only needed fields for join
     uid_subset = findings_generation_samples.select(["unique_id", "datapoint_id_prefix"])
 
+    # Get the list of prefixes for the unique IDs
+    prefixes = (
+        uid_subset.select(pl.col("datapoint_id_prefix")).unique().collect().get_column("datapoint_id_prefix").to_list()
+    )
+
     # Reference LazyFrame
     reference_lf = (
-        pl.scan_parquet(f"{str(input_path_reference)}/")  # Add trailing slash for polars to read the folder
-        .filter(pl.col("task") == "report_generation")
+        pl.scan_parquet(f"{str(input_path_reference)}/", hive_partitioning=True)
+        .filter((pl.col("task") == "report_generation") & pl.col("datapoint_id_prefix").is_in(prefixes))
         .select(
             [
                 "datapoint_id",
@@ -76,8 +81,8 @@ def get_candidates_and_references(
                 "annotation.report_sections.impression",
                 "datapoint_id_prefix",
             ]
-        ),
-    )[0]
+        )
+    )
 
     # Join on both datapoint_id and prefix
     reference_lf = reference_lf.join(
