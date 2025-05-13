@@ -60,15 +60,13 @@ def get_candidates_and_references(
         pl.col("unique_id").str.slice(0, 2).alias("datapoint_id_prefix")
     )
 
-    # Select only needed fields for join
-    uid_subset = findings_generation_samples.select(["unique_id", "datapoint_id_prefix"])
-
     # Get the list of prefixes for the unique IDs
+    uid_subset = findings_generation_samples.select(["unique_id", "datapoint_id_prefix"])
     prefixes = (
         uid_subset.select(pl.col("datapoint_id_prefix")).unique().collect().get_column("datapoint_id_prefix").to_list()
     )
 
-    # Reference LazyFrame
+    # Reference LazyFrame - read using the hive-partitioned parquet format
     reference_lf = (
         pl.scan_parquet(f"{str(input_path_reference)}/", hive_partitioning=True)
         .filter((pl.col("task") == "report_generation") & pl.col("datapoint_id_prefix").is_in(prefixes))
@@ -82,10 +80,7 @@ def get_candidates_and_references(
                 "datapoint_id_prefix",
             ]
         )
-    )
-
-    # Join on both datapoint_id and prefix
-    reference_lf = reference_lf.join(
+    ).join(
         uid_subset,
         left_on=["datapoint_id", "datapoint_id_prefix"],
         right_on=["unique_id", "datapoint_id_prefix"],
@@ -95,18 +90,6 @@ def get_candidates_and_references(
     # Collect both lazyframes
     findings_generation_samples = findings_generation_samples.collect()
     reference_df = reference_lf.collect()
-
-    # Combine the findings and impression sections of the reference into a single string
-    reference_df = reference_df.with_columns(
-        pl.concat_str(
-            [
-                pl.col("annotation.report_sections.findings").fill_null(""),
-                pl.col("annotation.report_sections.impression").fill_null(""),
-            ],
-            separator=" ",
-            null_char="",
-        ).alias("combined_findings"),
-    )
 
     # Get candidates dict in format expected downstream
     candidate_values = (
