@@ -218,13 +218,6 @@ def main() -> None:
         "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
     )
 
-    parser.add_argument(
-        "--allow_omitted_negatives",
-        action="store_true",
-        help="Whether to allow omitted negatives in the RadFact metric. If true, the RadFact metric will not penalize "
-        "for omitted negatives. ",
-    )
-
     args = parser.parse_args()
 
     if args.input_path.startswith("s3://"):
@@ -277,14 +270,33 @@ def main() -> None:
         series_instance_uids=series_instance_uids,
         instance_numbers_current_frontal=instance_numbers_current_frontal,
         ev_text_file_name=args.ev_text_file_name,
-        allow_omitted_negatives=args.allow_omitted_negatives,
+        allow_omitted_negatives=False,
+    )
+
+    results_bootstrap_allow_negs_json, results_allow_negs_df = compute_radfact_scores(
+        radfact_config_name=radfact_config_name,
+        phrases_config_name=phrases_config_name,
+        candidates=candidates,
+        references=references,
+        is_narrative_text=is_narrative_text,
+        bootstrap_samples=bootstrap_samples,
+        study_instance_uids=study_instance_uids,
+        series_instance_uids=series_instance_uids,
+        instance_numbers_current_frontal=instance_numbers_current_frontal,
+        ev_text_file_name="system_message_ev_singlephrase_updated_with_reasoning_negatives.txt",  # Hard-code for the negative ommission
+        allow_omitted_negatives=True,
     )
 
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results
     if is_narrative_text:
-        print("RadFact scores for narrative text samples")
+        print("RadFact scores for narrative text samples - lower bound, penalized ommitted negatives")
         print_fn(
             results=results_bootstrap_json,
+            metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"],
+        )
+        print("RadFact scores for narrative text samples - upper bound, not penalized ommitted negatives")
+        print_fn(
+            results=results_bootstrap_allow_negs_json,
             metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"],
         )
     else:
@@ -305,23 +317,39 @@ def main() -> None:
             ],
         )
 
-    output_path = output_dir / f"radfact_scores_{input_path.stem}.json"
+    output_path_lower_bound = output_dir / f"radfact_scores_{input_path.stem}_lower_bound.json"
+    output_path_upper_bound = output_dir / f"radfact_scores_{input_path.stem}_upper_bound.json"
 
-    if isinstance(output_path, (GCSPath, S3Path)):
+    if isinstance(output_path_lower_bound, (GCSPath, S3Path)):
         with tempfile.TemporaryDirectory() as tempdir:
             with open(Path(tempdir) / "tmp.json", "w", encoding="utf-8") as f:
                 json.dump(results_bootstrap_json, f, indent=2)
-            if isinstance(output_path, GCSPath):
-                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path)
-            elif isinstance(output_path, S3Client):
-                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path)
+            if isinstance(output_path_lower_bound, GCSPath):
+                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path_lower_bound)
+            elif isinstance(output_path_lower_bound, S3Client):
+                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path_lower_bound)
     else:
-        with open(output_path, "w", encoding="utf-8") as f:
+        with open(output_path_lower_bound, "w", encoding="utf-8") as f:
             json.dump(results_bootstrap_json, f, indent=2)
 
-    results_df.to_csv(str(output_path)[:-5] + ".csv", index=False)
+    results_df.to_csv(str(output_path_lower_bound)[:-5] + ".csv", index=False)
 
-    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Lower bound results saved to {output_path_lower_bound}")
+
+    if isinstance(output_path_upper_bound, (GCSPath, S3Path)):
+        with tempfile.TemporaryDirectory() as tempdir:
+            with open(Path(tempdir) / "tmp.json", "w", encoding="utf-8") as f:
+                json.dump(results_bootstrap_allow_negs_json, f, indent=2)
+            if isinstance(output_path_upper_bound, GCSPath):
+                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path_upper_bound)
+            elif isinstance(output_path_upper_bound, S3Client):
+                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path_upper_bound)
+    else:
+        with open(output_path_upper_bound, "w", encoding="utf-8") as f:
+            json.dump(results_bootstrap_allow_negs_json, f, indent=2)
+
+    results_allow_negs_df.to_csv(str(output_path_upper_bound)[:-5] + ".csv", index=False)
+    logger.info(f"Upper bound results saved to {output_path_upper_bound}")
 
 
 if __name__ == "__main__":

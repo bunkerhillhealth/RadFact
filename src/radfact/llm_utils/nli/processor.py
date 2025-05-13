@@ -64,10 +64,6 @@ def get_ev_processor_singlephrase(
     :param log_dir: Directory to save logs.
     :return: Processor for entailment verification.
     """
-
-    if allow_omitted_negatives:
-        ev_text_file_name = "system_message_ev_singlephrase_updated_with_reasoning_negatives.txt"
-
     assert ev_text_file_name.endswith(".txt"), "The system prompt file must be a .txt file."
 
     system_prompt_path = PROMPTS_DIR / ev_text_file_name
