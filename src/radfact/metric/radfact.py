@@ -286,7 +286,12 @@ class RadFactMetric:
         }
         return candidates_multimodal, references_multimodal
 
-    def compute_results_per_sample(self, candidates: InputDict, references: InputDict) -> PerSampleResultType:
+    def compute_results_per_sample(
+        self,
+        candidates: InputDict,
+        references: InputDict,
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+    ) -> PerSampleResultType:
         candidates_mm, references_mm = self.convert_input_to_multimodal(candidates, references)
         assert all(
             isinstance(value, GroundedPhraseList) for value in candidates_mm.values()
@@ -304,7 +309,9 @@ class RadFactMetric:
         candidates_str_ids = {str(study_id): sequence for study_id, sequence in candidates_mm.items()}
         references_str_ids = {str(study_id): sequence for study_id, sequence in references_mm.items()}
 
-        llm_ev_engine = get_report_nli_engine(self.llm_nli_cfg, candidates_str_ids, references_str_ids)
+        llm_ev_engine = get_report_nli_engine(
+            self.llm_nli_cfg, candidates_str_ids, references_str_ids, ev_text_file_name
+        )
         processed_samples: list[NLISample] = llm_ev_engine.run()
         if llm_ev_engine.aggregated_processor_stats:
             self.meta_metrics.update(llm_ev_engine.aggregated_processor_stats)
@@ -361,6 +368,9 @@ class RadFactMetric:
                     "study_instance_uid__current_frontal": study_instance_uids[int(result.study_id)],
                     "series_instance_uid__current_frontal": series_instance_uids[int(result.study_id)],
                     "instance_number__current_frontal": instance_numbers_current_frontal[int(result.study_id)],
+                    "id": int(
+                        result.study_id,
+                    ),
                     **asdict(score),
                 }
                 if (score := result.scores) is not None
@@ -389,8 +399,15 @@ class RadFactMetric:
         aggregate_dict["num_invalid_processed_samples"] = sum(result.scores is None for result in results_per_sample)
         return aggregate_dict['logical_f1'], aggregate_dict
 
-    def compute_metric_score(self, candidates: InputDict, references: InputDict) -> ReturnType:
-        results_per_sample = self.compute_results_per_sample(candidates=candidates, references=references)
+    def compute_metric_score(
+        self,
+        candidates: InputDict,
+        references: InputDict,
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+    ) -> ReturnType:
+        results_per_sample = self.compute_results_per_sample(
+            candidates=candidates, references=references, ev_text_file_name=ev_text_file_name
+        )
         return self.aggregate_results(results_per_sample)
 
     def reindex_results_per_sample(
