@@ -60,6 +60,7 @@ dependencies = [
     # radfact other
     "numpy",
     "pandas",
+    "polars==1.27.1",
 
     # cloud
     "fsspec[gcs,s3]==2024.9.0",
