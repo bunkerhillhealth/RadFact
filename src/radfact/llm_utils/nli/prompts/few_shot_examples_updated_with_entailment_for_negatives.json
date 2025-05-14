@@ -44,8 +44,8 @@
         {
           "evidence": [],
           "phrase": "Heart size is normal.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [
@@ -202,8 +202,8 @@
         {
           "evidence": [],
           "phrase": "There are no pleural effusions.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         }
       ]
     }
@@ -237,8 +237,8 @@
         {
           "evidence": [],
           "phrase": "Left lung is essentially clear.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [],
@@ -378,8 +378,8 @@
         {
           "evidence": [],
           "phrase": "Pulmonary vascularity is unremarkable.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [
@@ -460,14 +460,14 @@
         {
           "evidence": [],
           "phrase": "No infiltrate is seen.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [],
           "phrase": "No pleural effusion is seen.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         }
       ],
       "phrases_B_evidenced": [
@@ -488,8 +488,8 @@
         {
           "evidence": [],
           "phrase": "No pneumothorax is seen.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         }
       ]
     }
@@ -555,8 +555,8 @@
         {
           "evidence": [],
           "phrase": "There are no pleural effusions.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         }
       ]
     }
@@ -598,8 +598,8 @@
         {
           "evidence": [],
           "phrase": "Right lung is clear.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [],
@@ -626,14 +626,14 @@
         {
           "evidence": [],
           "phrase": "The cardiomediastinal silhouette is within normal limits.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [],
           "phrase": "No acute chest wall abnormality is radiographically evident.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         }
       ]
     }
@@ -668,8 +668,8 @@
         {
           "evidence": [],
           "phrase": "Pulmonary vascularity is unremarkable.",
-          "status": "neutral",
-          "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
+          "status": "entailment",
+          "reasoning": "This statement indicates normalcy or absence of a finding and is not contradicted by the report."
         },
         {
           "evidence": [],
