@@ -36,7 +36,7 @@ def validate_config_file(config_name: str | None) -> None:
 
 def get_candidates_and_references(
     csv_path: Path,
-    input_path_reference: GCSPath,
+    input_path_reference: str,
 ) -> tuple[
     dict[StudyIdType, str],
     dict[StudyIdType, str],
@@ -68,7 +68,7 @@ def get_candidates_and_references(
 
     # Reference LazyFrame - read using the hive-partitioned parquet format
     reference_lf = (
-        pl.scan_parquet(f"{str(input_path_reference)}/", hive_partitioning=True)
+        pl.scan_parquet(input_path_reference, hive_partitioning=True)
         .filter((pl.col("task") == "report_generation") & pl.col("datapoint_id_prefix").is_in(prefixes))
         .select(
             [
@@ -210,7 +210,8 @@ def main() -> None:
         "--input_path_reference",
         type=str,
         help="Path to the hive-partitioned parquet folder containing the reference reports. The folders are assumed to be "
-        "hive-partitioned based on unique ID, for fast lookup.",
+        "hive-partitioned based on unique ID, for fast lookup. Use glob pattern for hive-partitioned parquet files. "
+        "For example: gs://fm-internal-data/evaluation_data/xray/medstar_subset_2025-05-06/**/*.parquet",
         required=True,
     )
 
@@ -285,7 +286,7 @@ def main() -> None:
     assert args.input_path_reference.startswith(
         "gs://"
     ), "All parquet files are assumed to be in hive-partitioned parquet format on GCS."
-    input_path_reference = GCSPath(args.input_path_reference)
+    input_path_reference = args.input_path_reference
 
     is_narrative_text = args.is_narrative_text
     radfact_config_name = args.radfact_config_name
