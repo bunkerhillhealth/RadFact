@@ -370,8 +370,8 @@ def main() -> None:
             ],
         )
 
-    output_path_lower_bound = output_dir / f"radfact_scores_{input_path_candidate.stem}_lower_bound.json"
-    output_path_upper_bound = output_dir / f"radfact_scores_{input_path_candidate.stem}_upper_bound.json"
+    output_path_lower_bound = output_dir / f"radfact_scores_lower_bound.json"
+    output_path_upper_bound = output_dir / f"radfact_scores_upper_bound.json"
 
     if isinstance(output_path_lower_bound, (GCSPath, S3Path)):
         with tempfile.TemporaryDirectory() as tempdir:
