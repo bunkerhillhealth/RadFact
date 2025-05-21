@@ -46,11 +46,12 @@ def get_candidates_and_references(
 ]:
     """Reads the csv file containing the samples to compute RadFact for and returns the candidates and references in
     the expected format."""
-    findings_generation_samples = pl.scan_csv(csv_path).select(
+    predictions_path_is_glob = "*" in str(csv_path)
+    findings_generation_samples = pl.scan_csv(str(csv_path), glob=predictions_path_is_glob).select(
         pl.col(
             "current_frontal_metadata.study_uid",
             "unique_id",
-            "generated_grounded_findings",
+            "generated_response",
             "current_frontal_metadata.series_uid",
             "current_frontal_metadata.instance_number",
         )
@@ -61,13 +62,16 @@ def get_candidates_and_references(
     )
 
     # Get the list of prefixes for the unique IDs
-    uid_subset = findings_generation_samples.select(["unique_id", "datapoint_id_prefix"])
     prefixes = (
-        uid_subset.select(pl.col("datapoint_id_prefix")).unique().collect().get_column("datapoint_id_prefix").to_list()
+        findings_generation_samples.select(pl.col("datapoint_id_prefix"))
+        .unique()
+        .collect()
+        .get_column("datapoint_id_prefix")
+        .to_list()
     )
 
     # Reference LazyFrame - read using the hive-partitioned parquet format
-    reference_lf = (
+    combined_lf = (
         pl.scan_parquet(input_path_reference, hive_partitioning=True)
         .filter((pl.col("task") == "report_generation") & pl.col("datapoint_id_prefix").is_in(prefixes))
         .select(
@@ -81,35 +85,36 @@ def get_candidates_and_references(
             ]
         )
     ).join(
-        uid_subset,
+        findings_generation_samples,
         left_on=["datapoint_id", "datapoint_id_prefix"],
         right_on=["unique_id", "datapoint_id_prefix"],
         how="inner",
     )
 
-    # Collect both lazyframes
-    findings_generation_samples = findings_generation_samples.collect()
-    reference_df = reference_lf.collect()
+    # Collect
+    combined_df = combined_lf.collect()
 
     # Get candidates dict in format expected downstream
     candidate_values = (
-        findings_generation_samples.with_columns(pl.col("generated_grounded_findings").fill_null("[]"))
-        .select("generated_grounded_findings")
+        combined_df.with_columns(pl.col("generated_response").fill_null("[]"))
+        .select("generated_response")
         .to_series()
-        .map_elements(lambda gr: " ".join(item["finding"] for item in json.loads(gr)), return_dtype=pl.String)
+        .map_elements(lambda gr: " ".join(item["response"] for item in json.loads(gr)), return_dtype=pl.String)
     )
     candidates = dict(enumerate(candidate_values))
 
     # Get reference dict in format expected downstream. Using findings + impression as the reference text
     reference_values = (
-        reference_df.with_columns(
+        combined_df.with_columns(
             pl.concat_str(
                 [
                     pl.col("annotation.report_sections.findings").fill_null(""),
                     pl.col("annotation.report_sections.impression").fill_null(""),
                 ],
                 separator=" ",
-            ).alias("combined_findings")
+            )
+            .str.replace_all(":", " ")
+            .alias("combined_findings")
         )
         .select("combined_findings")
         .to_series()
@@ -120,17 +125,17 @@ def get_candidates_and_references(
 
     # For study_uid
     study_instance_uid_current_frontal = dict(
-        enumerate(findings_generation_samples["current_frontal_metadata.study_uid"].fill_null(""))
+        enumerate(combined_df["current_frontal_metadata.study_uid"].fill_null(""))
     )
 
     # For series_uid
     series_instance_uid_current_frontal = dict(
-        enumerate(findings_generation_samples["current_frontal_metadata.series_uid"].fill_null(""))
+        enumerate(combined_df["current_frontal_metadata.series_uid"].fill_null(""))
     )
 
     # For instance_number
     instance_number_current_frontal = dict(
-        enumerate(findings_generation_samples["current_frontal_metadata.instance_number"].fill_null(0)).cast(pl.Int32)
+        enumerate(combined_df["current_frontal_metadata.instance_number"].fill_null(0).cast(pl.Int32))
     )
 
     return (
@@ -365,8 +370,8 @@ def main() -> None:
             ],
         )
 
-    output_path_lower_bound = output_dir / f"radfact_scores_{input_path.stem}_lower_bound.json"
-    output_path_upper_bound = output_dir / f"radfact_scores_{input_path.stem}_upper_bound.json"
+    output_path_lower_bound = output_dir / f"radfact_scores_lower_bound.json"
+    output_path_upper_bound = output_dir / f"radfact_scores_upper_bound.json"
 
     if isinstance(output_path_lower_bound, (GCSPath, S3Path)):
         with tempfile.TemporaryDirectory() as tempdir:
