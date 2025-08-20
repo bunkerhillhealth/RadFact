@@ -11,6 +11,7 @@ from pathlib import Path
 
 import polars as pl
 
+from radfact.cli.pipeline.base import CTMetricGenerationPipeline, XRMetricGenerationPipeline
 from radfact.cloud.client import GCSClient, S3Client
 from radfact.cloud.types import GCSPath, S3Path
 from radfact.data_utils.grounded_phrase_list import GroundedPhraseList
@@ -32,119 +33,6 @@ def validate_config_file(config_name: str | None) -> None:
                 "Make sure the config file is saved in the `configs` directory."
             )
             raise FileNotFoundError(message)
-
-
-def get_candidates_and_references(
-    csv_path: Path,
-    input_path_reference: str,
-) -> tuple[
-    dict[StudyIdType, str],
-    dict[StudyIdType, str],
-    dict[StudyIdType, str],
-    dict[StudyIdType, str],
-    dict[StudyIdType, str],
-]:
-    """Reads the csv file containing the samples to compute RadFact for and returns the candidates and references in
-    the expected format."""
-    predictions_path_is_glob = "*" in str(csv_path)
-    findings_generation_samples = pl.scan_csv(str(csv_path), glob=predictions_path_is_glob).select(
-        pl.col(
-            "current_frontal_metadata.study_uid",
-            "unique_id",
-            "generated_response",
-            "current_frontal_metadata.series_uid",
-            "current_frontal_metadata.instance_number",
-        )
-    )
-    # Add unique_id_prefix as unique_id.str.slice(0, 2)
-    findings_generation_samples = findings_generation_samples.with_columns(
-        pl.col("unique_id").str.slice(0, 2).alias("datapoint_id_prefix")
-    )
-
-    # Get the list of prefixes for the unique IDs
-    prefixes = (
-        findings_generation_samples.select(pl.col("datapoint_id_prefix"))
-        .unique()
-        .collect()
-        .get_column("datapoint_id_prefix")
-        .to_list()
-    )
-
-    # Reference LazyFrame - read using the hive-partitioned parquet format
-    combined_lf = (
-        pl.scan_parquet(input_path_reference, hive_partitioning=True)
-        .filter((pl.col("task") == "report_generation") & pl.col("datapoint_id_prefix").is_in(prefixes))
-        .select(
-            [
-                "datapoint_id",
-                "task",
-                "annotation.annotated_concepts",
-                "annotation.report_sections.findings",
-                "annotation.report_sections.impression",
-                "datapoint_id_prefix",
-            ]
-        )
-    ).join(
-        findings_generation_samples,
-        left_on=["datapoint_id", "datapoint_id_prefix"],
-        right_on=["unique_id", "datapoint_id_prefix"],
-        how="inner",
-    )
-
-    # Collect
-    combined_df = combined_lf.collect()
-
-    # Get candidates dict in format expected downstream
-    candidate_values = (
-        combined_df.with_columns(pl.col("generated_response").fill_null("[]"))
-        .select("generated_response")
-        .to_series()
-        .map_elements(lambda gr: " ".join(item["response"] for item in json.loads(gr)), return_dtype=pl.String)
-    )
-    candidates = dict(enumerate(candidate_values))
-
-    # Get reference dict in format expected downstream. Using findings + impression as the reference text
-    reference_values = (
-        combined_df.with_columns(
-            pl.concat_str(
-                [
-                    pl.col("annotation.report_sections.findings").fill_null(""),
-                    pl.col("annotation.report_sections.impression").fill_null(""),
-                ],
-                separator=" ",
-            )
-            .str.replace_all(":", " ")
-            .alias("combined_findings")
-        )
-        .select("combined_findings")
-        .to_series()
-    )
-
-    # Convert to dict with row index as key
-    references = dict(enumerate(reference_values))
-
-    # For study_uid
-    study_instance_uid_current_frontal = dict(
-        enumerate(combined_df["current_frontal_metadata.study_uid"].fill_null(""))
-    )
-
-    # For series_uid
-    series_instance_uid_current_frontal = dict(
-        enumerate(combined_df["current_frontal_metadata.series_uid"].fill_null(""))
-    )
-
-    # For instance_number
-    instance_number_current_frontal = dict(
-        enumerate(combined_df["current_frontal_metadata.instance_number"].fill_null(0).cast(pl.Int32))
-    )
-
-    return (
-        candidates,
-        references,
-        study_instance_uid_current_frontal,
-        series_instance_uid_current_frontal,
-        instance_number_current_frontal,
-    )
 
 
 def get_candidates_and_references_from_json(
@@ -208,7 +96,7 @@ def main() -> None:
         type=str,
         help="The path to the csv file which is obtained from running fm.maira2.generate.generate . See the generated type at: "
         "https://github.com/bunkerhillhealth/bunkerhill/blob/e1baffb1e194f4c330c4254efe243183004710ff/fm/maira2/generate/generate/types.py#L45.",
-        required=True,
+        default=None,
     )
 
     parser.add_argument(
@@ -217,7 +105,19 @@ def main() -> None:
         help="Path to the hive-partitioned parquet folder containing the reference reports. The folders are assumed to be "
         "hive-partitioned based on unique ID, for fast lookup. Use glob pattern for hive-partitioned parquet files. "
         "For example: gs://fm-internal-data/evaluation_data/xray/medstar_subset_2025-05-06/**/*.parquet",
-        required=True,
+        default=None,
+    )
+    parser.add_argument(
+        "--combined_generated_path",
+        type=str,
+        help="Path to the combined generated reports/ground truth reports.",
+        default=None,
+    )
+    parser.add_argument(
+        "--pipeline",
+        type=MetricGenerationPipelineType,
+        help="The processing pipeline to use for generating the metrics ('ct' or 'xr').",
+        default='xr',
     )
 
     parser.add_argument(
@@ -284,12 +184,17 @@ def main() -> None:
     assert args.input_path_reference.startswith(
         "gs://"
     ), "All parquet files are assumed to be in hive-partitioned parquet format on GCS."
+
+    if (args.input_path_reference is None) != (args.input_path_candidate is None):
+        raise ValueError("Both input_path_reference and input_path_candidate must be provided together.")
+
     input_path_reference = args.input_path_reference
 
     is_narrative_text = args.is_narrative_text
     radfact_config_name = args.radfact_config_name
     phrases_config_name = args.phrases_config_name
     bootstrap_samples = args.bootstrap_samples
+    pipeline = args.pipeline
 
     assert input_path_candidate.suffix in [".csv", ".json"], "Input file must be a csv or json file."
     assert input_path_candidate.suffix == ".csv" or not is_narrative_text, (
@@ -305,9 +210,17 @@ def main() -> None:
     references: InputDict
 
     if is_narrative_text:
-        candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
-            get_candidates_and_references(input_path_candidate, input_path_reference)
-        )
+        if pipeline == MetricGenerationPipelineType.XR:
+            candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
+                XRMetricGenerationPipeline.get_candidates_and_references(input_path_candidate, input_path_reference)
+            )
+        elif pipeline == MetricGenerationPipelineType.CT:
+            candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
+                CTMetricGenerationPipeline.get_candidates_and_references(input_path_candidate, input_path_reference)
+            )
+        else:
+            raise ValueError(f"Invalid pipeline: {pipeline}")
+
     else:
         # candidates, references = get_candidates_and_references_from_json(input_path)
         raise NotImplementedError("BH output format for grounded phrases is not yet supported.")
