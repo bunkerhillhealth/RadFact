@@ -11,7 +11,7 @@ from pathlib import Path
 
 import polars as pl
 
-from radfact.cli.pipeline.base import CTMetricGenerationPipeline, XRMetricGenerationPipeline
+from radfact.cli.pipeline.base import CTMetricGenerationPipeline, XRMetricGenerationPipeline, MetricGenerationPipelineType
 from radfact.cloud.client import GCSClient, S3Client
 from radfact.cloud.types import GCSPath, S3Path
 from radfact.data_utils.grounded_phrase_list import GroundedPhraseList
@@ -85,6 +85,12 @@ def compute_radfact_scores(
     )
     return bootstrapper.compute_bootstrap_metrics(results_per_sample=results_per_sample), results_per_sample_df
 
+def resolve_path(path: str):
+    if path.startswith("s3://"):
+        return S3Path(path)
+    if path.startswith("gs://"):
+        return GCSPath(path)
+    return Path(path)
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
@@ -167,40 +173,34 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    if args.input_path_candidate.startswith("s3://"):
-        input_path_candidate = S3Path(args.input_path_candidate)
-    elif args.input_path_candidate.startswith("gs://"):
-        input_path_candidate = GCSPath(args.input_path_candidate)
-    else:
-        input_path_candidate = Path(args.input_path_candidate)
-
-    if args.output_dir.startswith("s3://"):
-        output_dir = S3Path(args.output_dir)
-    elif args.output_dir.startswith("gs://"):
-        output_dir = GCSPath(args.output_dir)
-    else:
-        output_dir = Path(args.output_dir)
-
-    assert args.input_path_reference.startswith(
-        "gs://"
-    ), "All parquet files are assumed to be in hive-partitioned parquet format on GCS."
-
     if (args.input_path_reference is None) != (args.input_path_candidate is None):
         raise ValueError("Both input_path_reference and input_path_candidate must be provided together.")
+    combined_generated_path = resolve_path(args.combined_generated_path) if args.combined_generated_path is not None else None
 
-    input_path_reference = args.input_path_reference
+    input_path_candidate = resolve_path(args.input_path_candidate) if args.input_path_candidate is not None else None
+    output_dir = resolve_path(args.output_dir)
+
+    if args.input_path_reference is not None:
+
+        assert args.input_path_reference.startswith(
+            "gs://"
+        ), "All parquet files are assumed to be in hive-partitioned parquet format on GCS."
+
+
+
+    input_path_reference = args.input_path_reference if args.input_path_reference is not None else None
 
     is_narrative_text = args.is_narrative_text
     radfact_config_name = args.radfact_config_name
     phrases_config_name = args.phrases_config_name
     bootstrap_samples = args.bootstrap_samples
     pipeline = args.pipeline
-
-    assert input_path_candidate.suffix in [".csv", ".json"], "Input file must be a csv or json file."
-    assert input_path_candidate.suffix == ".csv" or not is_narrative_text, (
-        "Input file must be a json file for grounded phrases and is_narrative_text must be False. For narrative text, "
-        "input file must be a csv file and is_narrative_text must be True."
-    )
+    if input_path_candidate is not None:
+        assert input_path_candidate.suffix in [".csv", ".json"], "Input file must be a csv or json file."
+        assert input_path_candidate.suffix == ".csv" or not is_narrative_text, (
+            "Input file must be a json file for grounded phrases and is_narrative_text must be False. For narrative text, "
+            "input file must be a csv file and is_narrative_text must be True."
+        )
     validate_config_file(radfact_config_name)
     validate_config_file(phrases_config_name)
 
@@ -216,7 +216,7 @@ def main() -> None:
             )
         elif pipeline == MetricGenerationPipelineType.CT:
             candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
-                CTMetricGenerationPipeline.get_candidates_and_references(input_path_candidate, input_path_reference)
+                CTMetricGenerationPipeline.get_candidates_and_references(combined_generated_path)
             )
         else:
             raise ValueError(f"Invalid pipeline: {pipeline}")
