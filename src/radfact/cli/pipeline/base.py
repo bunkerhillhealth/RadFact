@@ -38,15 +38,15 @@ class CTMetricGenerationPipeline(MetricGenerationPipeline):
             pl.col(
                 "study_datapoint_id",
                 "series_datapoint_id",
-                "generated_report",
-                "ground_truth_report",
+                "pred",
+                "gt",
             )
         )
         findings_generation_samples = findings_generation_samples.collect()
         n_rows = findings_generation_samples.height
-        candidates = dict(enumerate(findings_generation_samples["generated_report"].fill_null("")))
+        candidates = dict(enumerate(findings_generation_samples["pred"].fill_null("")))
 
-        references = dict(enumerate(findings_generation_samples["ground_truth_report"].fill_null("")))
+        references = dict(enumerate(findings_generation_samples["gt"].fill_null("")))
 
         study_instance_uid = dict(enumerate(findings_generation_samples["study_datapoint_id"].fill_null("")))
 

@@ -175,6 +175,9 @@ def main() -> None:
 
     if (args.input_path_reference is None) != (args.input_path_candidate is None):
         raise ValueError("Both input_path_reference and input_path_candidate must be provided together.")
+    if (args.pipeline == MetricGenerationPipelineType.CT) and (args.combined_generated_path is None):
+        raise ValueError("combined_generated_path is only supported for CT pipeline.")
+
     combined_generated_path = resolve_path(args.combined_generated_path) if args.combined_generated_path is not None else None
 
     input_path_candidate = resolve_path(args.input_path_candidate) if args.input_path_candidate is not None else None
