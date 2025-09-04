@@ -133,7 +133,7 @@ class ReportGroundingNLIProcessor(BaseProcessor[NLIQuerySample, NLISample]):
         If LLM tries to rephrase the input, we log a warning and correct it.
         """
         logger.info(f"Running processor on single phrase: {single_phrase.input}")
-        # single_response = self.phrase_processor.run(query=single_phrase.input, query_id=query_id)
+        single_response = self.phrase_processor.run(query=single_phrase.input, query_id=query_id)
 
         if single_response is None:
             logger.warning(f"WARNING: No response for example {query_id}. Setting as NOT ENTAILED.")
