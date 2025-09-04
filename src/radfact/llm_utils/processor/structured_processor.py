@@ -210,6 +210,8 @@ class StructuredProcessor(BaseProcessor[QueryT, ResultT]):
         chain = self.query_template | self.model | self.parser
         try:
             response: ResultT = chain.invoke({_QUERY_KEY: query})
+            logger.info(f'query: {query}')
+            logger.info(f"token usage: {response.response_metadata['token_usage']}")
             if self.validate_result_fn:
                 self.validate_result_fn(query, response)
             self.num_success += 1

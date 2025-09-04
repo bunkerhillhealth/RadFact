@@ -20,7 +20,7 @@ ENDPOINT_0:
   # Alternatively, you can set the num_parallel_processes to control the number of parallel processes that can be
   # spawned to handle requests to this endpoint. This is useful to parallelize requests to a single endpoint when
   # the endpoint has a high throughput. By default, all calls are sequential. This parameter enables parallelism.
-  num_parallel_processes: 10
+  num_parallel_processes: 5
 # If you have access to multiple endpoints, you can add more endpoints as follows. Change the speed factors as needed
 # to control the amount of data assigned to each endpoint.
 
