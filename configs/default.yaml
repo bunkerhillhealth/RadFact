@@ -1,5 +1,5 @@
 defaults:
-  - endpoints: chat_openai-gpt4-1
+  - endpoints: chat_openai-gpt5
   - _self_
 
 llm_api:

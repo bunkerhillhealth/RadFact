@@ -37,6 +37,7 @@ from radfact.llm_utils.processor.structured_processor import (
 )
 from radfact.paths import OUTPUT_DIR, get_prompts_dir
 
+
 logger = logging.getLogger(__name__)
 PARSING_TASK = "nli"
 PROMPTS_DIR = get_prompts_dir(task=PARSING_TASK)

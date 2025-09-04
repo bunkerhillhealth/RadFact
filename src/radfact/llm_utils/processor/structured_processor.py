@@ -8,6 +8,7 @@ from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
+import tiktoken
 
 import yaml
 from langchain.output_parsers import PydanticOutputParser, YamlOutputParser
@@ -17,6 +18,8 @@ from langchain_core.prompts import BaseChatPromptTemplate
 from pydantic import BaseModel
 
 from radfact.llm_utils.processor.base_processor import BaseProcessor, QueryT
+
+enc = tiktoken.encoding_for_model("gpt-5")
 
 logger = logging.getLogger(__name__)
 
@@ -210,8 +213,10 @@ class StructuredProcessor(BaseProcessor[QueryT, ResultT]):
         chain = self.query_template | self.model | self.parser
         try:
             response: ResultT = chain.invoke({_QUERY_KEY: query})
+            token_count = len(enc.encode(query))
             logger.info(f'query: {query}')
-            logger.info(f"token usage: {response.response_metadata['token_usage']}")
+            logger.info(f"token usage from open ai: {response.response_metadata['token_usage']}")
+            logger.info(f"token count from tiktoken: {token_count}")
             if self.validate_result_fn:
                 self.validate_result_fn(query, response)
             self.num_success += 1
