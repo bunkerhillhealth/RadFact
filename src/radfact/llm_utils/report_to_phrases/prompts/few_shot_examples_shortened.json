@@ -1,0 +1,119 @@
+[
+    {
+      "example_id": "few_shot1",
+      "findings_text": "The endotracheal tube is appropriately positioned 4.8 cm from the carina. An enteric tube is present and its tip is in the stomach. A right internal jugular central venous catheter is present and its tip is in the mid SVC. Bilateral parenchymal opacities are present, mainly at the bases, consistent with an infectious process. Interstitial opacities have worsened, indicating increased edema. A small left pleural effusion is stable. The right pleural effusion has slightly increased in size. No pneumothorax is present. The cardiomediastinal silhouette is normal.",
+      "parsed_report": {
+        "id": "few_shot1",
+        "sentence_list": [
+          {
+            "orig": "The endotracheal tube is appropriately positioned 4.8 cm from the carina.",
+            "new": [
+              "The endotracheal tube is appropriately positioned 4.8 cm from the carina."
+            ]
+          },
+          {
+            "orig": "An enteric tube is present and its tip is in the stomach.",
+            "new": [
+              "An enteric tube is present and its tip is in the stomach."
+            ]
+          },
+          {
+            "orig": "A right internal jugular central venous catheter is present and its tip is in the mid SVC.",
+            "new": [
+              "A right internal jugular central venous catheter is present and its tip is in the mid SVC."
+            ]
+          },
+          {
+            "orig": "Bilateral parenchymal opacities are present, mainly at the bases, consistent with an infectious process.",
+            "new": [
+              "Bilateral parenchymal opacities are present, mainly at the bases."
+            ]
+          },
+          {
+            "orig": "Interstitial opacities have worsened, indicating increased edema.",
+            "new": [
+              "Interstitial opacities have worsened, indicating increased edema."
+            ]
+          },
+          {
+            "orig": "A small left pleural effusion is stable.",
+            "new": [
+              "A small left pleural effusion is stable."
+            ]
+          },
+          {
+            "orig": "The right pleural effusion has slightly increased in size.",
+            "new": [
+              "The right pleural effusion has slightly increased in size."
+            ]
+          },
+          {
+            "orig": "No pneumothorax is present.",
+            "new": [
+              "No pneumothorax is present."
+            ]
+          },
+          {
+            "orig": "The cardiomediastinal silhouette is normal.",
+            "new": [
+              "The cardiomediastinal silhouette is normal."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_1",
+      "example_rationale": "Positive finding."
+    },
+
+
+    {
+      "example_id": "few_shot9",
+      "findings_text": "The current radiographs were compared to the previous ones from _. The left side still shows mediastinal shifting and volume loss. This remains unchanged. The increased density at the left base indicates the collapse of the postoperative left lung, as previously suggested. The right lung is well aerated, with no signs of pulmonary edema, focal consolidation, or pleural effusions. No pneumothoraces are observed. A central venous line is present on the right side, with the distal lead tip located in the proximal SVC.",
+      "parsed_report": {
+        "id": "few_shot9",
+        "sentence_list": [
+          {
+            "orig": "The current radiographs were compared to the previous ones from _.",
+            "new": [
+              ""
+            ]
+          },
+          {
+            "orig": "The left side still shows mediastinal shifting and volume loss. This remains unchanged.",
+            "new": [
+              "The left side still shows mediastinal shifting and volume loss."
+            ]
+          },
+          {
+            "orig": "The increased density at the left base indicates the collapse of the postoperative left lung, as previously suggested.",
+            "new": [
+              "The increased density at the left base indicates the collapse of the postoperative left lung, as previously suggested."
+            ]
+          },
+          {
+            "orig": "The right lung is well aerated, with no signs of pulmonary edema, focal consolidation, or pleural effusions.",
+            "new": [
+              "The right lung is well aerated.",
+              "No signs of pulmonary edema.",
+              "No signs of focal consolidation.",
+              "No signs of pleural effusions."
+            ]
+          },
+          {
+            "orig": "No pneumothoraces are observed.",
+            "new": [
+              "No pneumothoraces are observed."
+            ]
+          },
+          {
+            "orig": "A central venous line is present on the right side, with the distal lead tip located in the proximal SVC.",
+            "new": [
+              "A central venous line is present on the right side, with the distal lead tip located in the proximal SVC."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_9",
+      "example_rationale": "Combine sentences."
+    }
+  ]
