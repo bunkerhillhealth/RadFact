@@ -27,7 +27,7 @@ def get_report_to_phrases_processor(log_dir: Path | None = None) -> StructuredPr
     :return: The processor for report to phrase conversion.
     """
     system_message_path = PROMPTS_DIR / "system_message.txt"
-    few_shot_examples_path = PROMPTS_DIR / "few_shot_examples.json"
+    few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_shortened.json"
     system_prompt = system_message_path.read_text()
     few_shot_examples = load_examples_from_json(few_shot_examples_path)
     processor = StructuredProcessor(
