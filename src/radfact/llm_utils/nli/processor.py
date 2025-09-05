@@ -84,7 +84,6 @@ def get_ev_processor_singlephrase(
             few_shot_examples_single_phrase.extend(single_phrase_sample)
 
     formatter = partial(simple_formatter, style=FormatStyleOptions.YAML)
-    logger.info(f"Using few-shot examples: {few_shot_examples_single_phrase}")
     processor = StructuredProcessor(
         query_type=ComparisonQuerySinglePhrase,
         result_type=EvidencedPhrase,
