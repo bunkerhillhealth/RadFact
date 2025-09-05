@@ -10,6 +10,8 @@ from typing import Callable
 from radfact.azure_utils.auth import get_azure_token_provider, get_from_env_or_vault
 from radfact.paths import WORKSPACE_CONFIG_PATH
 
+
+
 # The default name under which an endpoint API Key is stored in environment variables.
 ENV_API_KEY = "API_KEY"
 

@@ -8,6 +8,7 @@ from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
+import tiktoken
 
 import yaml
 from langchain.output_parsers import PydanticOutputParser, YamlOutputParser
@@ -17,6 +18,8 @@ from langchain_core.prompts import BaseChatPromptTemplate
 from pydantic import BaseModel
 
 from radfact.llm_utils.processor.base_processor import BaseProcessor, QueryT
+
+enc = tiktoken.encoding_for_model("gpt-5-")
 
 logger = logging.getLogger(__name__)
 
@@ -209,6 +212,9 @@ class StructuredProcessor(BaseProcessor[QueryT, ResultT]):
         assert self.model, "Model not set. Call `set_model` first."
         chain = self.query_template | self.model | self.parser
         try:
+            base_msg = self.query_template.invoke({_QUERY_KEY: query})
+            token_count = len(enc.encode(" ".join(m.content for m in base_msg.messages)))
+            logger.info(f"input token count from tiktoken: {token_count}")
             response: ResultT = chain.invoke({_QUERY_KEY: query})
             if self.validate_result_fn:
                 self.validate_result_fn(query, response)

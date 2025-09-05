@@ -37,6 +37,7 @@ from radfact.llm_utils.processor.structured_processor import (
 )
 from radfact.paths import OUTPUT_DIR, get_prompts_dir
 
+
 logger = logging.getLogger(__name__)
 PARSING_TASK = "nli"
 PROMPTS_DIR = get_prompts_dir(task=PARSING_TASK)
@@ -83,7 +84,6 @@ def get_ev_processor_singlephrase(
             few_shot_examples_single_phrase.extend(single_phrase_sample)
 
     formatter = partial(simple_formatter, style=FormatStyleOptions.YAML)
-
     processor = StructuredProcessor(
         query_type=ComparisonQuerySinglePhrase,
         result_type=EvidencedPhrase,
@@ -132,6 +132,7 @@ class ReportGroundingNLIProcessor(BaseProcessor[NLIQuerySample, NLISample]):
         If LLM fails to respond, we return a default NOT_ENTAILMENT with no evidence.
         If LLM tries to rephrase the input, we log a warning and correct it.
         """
+        logger.info(f"Running processor on single phrase: {single_phrase.input}")
         single_response = self.phrase_processor.run(query=single_phrase.input, query_id=query_id)
 
         if single_response is None:
