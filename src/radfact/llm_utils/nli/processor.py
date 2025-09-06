@@ -70,7 +70,7 @@ def get_ev_processor_singlephrase(
     system_prompt_path = PROMPTS_DIR / ev_text_file_name
 
     if allow_omitted_negatives:
-        few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_updated_with_entailment_for_negatives.json"
+        few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_updated_with_entailment_for_negatives_shortened.json"
     else:
         few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_with_clinical_reasoning_shortened.json"
     system_prompt = system_prompt_path.read_text()
