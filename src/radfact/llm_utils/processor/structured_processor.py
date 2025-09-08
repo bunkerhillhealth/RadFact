@@ -9,7 +9,7 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
 import tiktoken
-
+from datetime import datetime
 import yaml
 from langchain.output_parsers import PydanticOutputParser, YamlOutputParser
 from langchain_core.language_models import BaseLanguageModel
@@ -204,18 +204,22 @@ class StructuredProcessor(BaseProcessor[QueryT, ResultT]):
         error_message = f"{ex}\n----\nQuery {query_id=}:\n{formatted_query=}"
         if self.log_dir:
             self.log_dir.mkdir(exist_ok=True, parents=True)
-            error_log_path = self.log_dir / f"error_{query_id}.txt"
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            error_log_path = self.log_dir / f"error_{query_id}_{timestamp}.txt"
             error_log_path.write_text(error_message)
             logger.info(f"Error details saved to {error_log_path}.")
 
     def run(self, query: QueryT, query_id: str) -> ResultT | None:
         assert self.model, "Model not set. Call `set_model` first."
-        chain = self.query_template | self.model | self.parser
+        structured_model = self.model.with_structured_output(self.result_type)
+        # chain = self.query_template | self.model | self.parser
+        chain = self.query_template | structured_model
         try:
             base_msg = self.query_template.invoke({_QUERY_KEY: query})
             token_count = len(enc.encode(" ".join(m.content for m in base_msg.messages)))
             logger.info(f"input token count from tiktoken: {token_count}")
             response: ResultT = chain.invoke({_QUERY_KEY: query})
+            logger.info(f"Response: {response}")
             if self.validate_result_fn:
                 self.validate_result_fn(query, response)
             self.num_success += 1

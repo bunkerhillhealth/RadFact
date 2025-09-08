@@ -56,6 +56,7 @@ class OpenaiAPIArguments(metaclass=ABCMeta):
                     params["azure_ad_token_provider"] = self.endpoint.token_provider
                 return params
             case EndpointType.CHAT_OPENAI:
+                logger.info(f"Using endpoint {self.endpoint.url} with deployment name {self.endpoint.deployment_name}")
                 return dict(
                     model=self.endpoint.deployment_name,
                     base_url=self.endpoint.url,
@@ -77,7 +78,8 @@ class LLMAPIArguments(OpenaiAPIArguments):
     """Chat API for an LLM expects arguments to match ChatOpenAI or AzureChatOpenAI."""
 
     temperature: float = field(default=0.0)
-    max_tokens: int = field(default=1024)
+    max_completion_tokens: int = field(default=2048)
+    # max_tokens: int = field(default=1024)
     top_p: float = field(default=0.95)
     frequency_penalty: float = field(default=0.0)
     presence_penalty: float = field(default=0.0)
@@ -91,7 +93,8 @@ class LLMAPIArguments(OpenaiAPIArguments):
         """
         return dict(
             temperature=self.temperature,
-            max_tokens=self.max_tokens,
+            max_completion_tokens=self.max_completion_tokens,
+            # max_tokens=self.max_tokens,
             n=self.n_completions,
             top_p=self.top_p,
             frequency_penalty=self.frequency_penalty,

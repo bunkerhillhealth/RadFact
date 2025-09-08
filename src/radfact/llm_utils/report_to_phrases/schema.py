@@ -88,7 +88,7 @@ class PhraseParsingExample(BaseModel):
     def output(self) -> ParsedReport | None:
         return self.parsed_report
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     @classmethod
     def no_unnecessarily_duplicated_sentences(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Make sure the same 'orig' sentence doesn't appear twice."""

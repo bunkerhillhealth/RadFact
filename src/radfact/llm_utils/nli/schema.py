@@ -84,7 +84,7 @@ class EvidencedPhrase(BaseModel):
             new_status = EVState.from_nli_state(NLIState(self.status))
             return self.copy(update={"status": new_status.value})
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     @classmethod
     def evidence_exists_or_not(cls, values: dict[str, Any]) -> dict[str, Any]:
         """

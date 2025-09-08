@@ -23,10 +23,14 @@ from radfact.paths import CONFIGS_DIR
 
 logger = logging.getLogger(__name__)
 
+import os
+print(os.getcwd())
+
 
 def validate_config_file(config_name: str | None) -> None:
     if config_name is not None:
         config_path = CONFIGS_DIR / f"{config_name}"
+        print(config_path)
         if not config_path.exists():
             message = (
                 f"Config file {config_name} does not exist. "
