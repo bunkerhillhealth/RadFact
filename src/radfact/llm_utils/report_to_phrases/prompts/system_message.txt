@@ -4,10 +4,14 @@ Please extract phrases from the radiology report which refer to objects, finding
 
 Rules:
 - If a sentence describes multiple findings, split them up into separate sentences.
+- Do not split a snetence into multiple sentences if those multiple sentences mean the same thing.
 - Exclude clinical speculation or interpretation (e.g. "... highly suggestive of pneumonia").
 - Exclude recommendations (e.g. "Recommend a CT").
 - Exclude comments on the technical quality of the X-ray (e.g. "there are low lung volumes").
 - Include mentions of change (e.g. "Pleural effusion has increased") because change is visible when we compare two X-rays.
 - If consecutive sentences are closely linked such that one sentence can't be understood without the other one, process them together.
+- If there are multiple sentences in the report containing the same finding, only process one of those sentences.
+- Exclude negative findings that reference an earlier sentence. e.g. ('no other masses found', 'no additional nodules seen').
+
 
 The objective is to extract phrases which refer to things which can be located on a chest X-ray, or confirmed not to be present.
