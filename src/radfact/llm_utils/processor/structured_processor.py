@@ -212,7 +212,6 @@ class StructuredProcessor(BaseProcessor[QueryT, ResultT]):
     def run(self, query: QueryT, query_id: str) -> ResultT | None:
         assert self.model, "Model not set. Call `set_model` first."
         structured_model = self.model.with_structured_output(self.result_type)
-        # chain = self.query_template | self.model | self.parser
         chain = self.query_template | structured_model
         try:
             base_msg = self.query_template.invoke({_QUERY_KEY: query})
