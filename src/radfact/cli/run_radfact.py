@@ -165,7 +165,7 @@ def main() -> None:
         "`configs` directory. This is necessary for hydra initialization from the `configs` directory.",
         default=None,
     )
-    parser.add_argument('--few_shot_examples_reports_to_phrases_filename', help='The name of the few shot examples file for splitting reports into phrases. This can be found under the `report_to_phrases/prompts` directory.', default="few_shot_examples_shortened.json")
+    parser.add_argument('--few_shot_examples_reports_to_phrases_filename', help='The name of the few shot examples file for splitting reports into phrases. This can be found under the `report_to_phrases/prompts` directory.', default="few_shot_examples_ct_shortened_no_measurements.json")
     parser.add_argument('--few_shot_examples_radfact_filename',  help='The name of the few shot examples file for radfact entailment verification. This can be found under the `nli/prompts` directory.', default=None)
     parser.add_argument(
         "--phrases_config_name",
@@ -207,7 +207,7 @@ def main() -> None:
     parser.add_argument(
         "--ev_text_file_name",
         type=str,
-        default="system_message_ev_singlephrase_updated_with_reasoning.txt",
+        default="system_message_ev_singlephrase_updated_with_reasoning_negatives_ct.txt",
         help="The name of the system message file for the entailment verification processor. This is used to set up "
         "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
     )
@@ -224,24 +224,21 @@ def main() -> None:
         raise ValueError("combined_generated_path is only supported for CT pipeline.")
 
     combined_generated_path = resolve_path(args.combined_generated_path) if args.combined_generated_path is not None else None
-
     input_path_candidate = resolve_path(args.input_path_candidate) if args.input_path_candidate is not None else None
     output_dir = resolve_path(args.output_dir)
 
     if args.input_path_reference is not None:
-
         assert args.input_path_reference.startswith(
             "gs://"
         ), "All parquet files are assumed to be in hive-partitioned parquet format on GCS."
 
-
-
     input_path_reference = args.input_path_reference if args.input_path_reference is not None else None
-
     is_narrative_text = args.is_narrative_text
     radfact_config_name = args.radfact_config_name
     phrases_config_name = args.phrases_config_name
     bootstrap_samples = args.bootstrap_samples
+    ev_text_file_name = args.ev_text_file_name
+    reports_to_phrases_text_file_name = args.reports_to_phrases_text_file_name
     few_shot_examples_reports_to_phrases_filename = args.few_shot_examples_reports_to_phrases_filename
     few_shot_examples_radfact_filename = args.few_shot_examples_radfact_filename
     pipeline = args.pipeline
@@ -249,7 +246,6 @@ def main() -> None:
 
     if not is_narrative_text:
         raise NotImplementedError("BH output format for grounded phrases is not yet supported.")
-
 
     if input_path_candidate is not None:
         assert input_path_candidate.suffix in [".csv", ".json"], "Input file must be a csv or json file."
@@ -260,10 +256,12 @@ def main() -> None:
     validate_config_file(radfact_config_name)
     validate_config_file(phrases_config_name)
 
-    assert args.ev_text_file_name.endswith(".txt"), "The entailment verification text file must be a .txt file."
-    assert args.reports_to_phrases_text_file_name.endswith(".txt"), "The report to phrases text file must be a .txt file."
-    assert args.few_shot_examples_reports_to_phrases_filename.endswith(".json"), "The few shot examples file must be a .json file."
-    assert args.few_shot_examples_radfact_filename.endswith(".json"), "The few shot examples file must be a .json file."
+    assert ev_text_file_name.endswith(".txt"), "The entailment verification text file must be a .txt file."
+    assert reports_to_phrases_text_file_name.endswith(".txt"), "The report to phrases text file must be a .txt file."
+    assert few_shot_examples_reports_to_phrases_filename.endswith(".json"), "The few shot examples file must be a .json file."
+    if few_shot_examples_radfact_filename is not None:
+        assert few_shot_examples_radfact_filename.endswith(".json"), "The few shot examples file must be a .json file."
+
 
     candidates: InputDict
     references: InputDict

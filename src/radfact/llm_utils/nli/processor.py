@@ -112,7 +112,6 @@ class ReportGroundingNLIProcessor(BaseProcessor[NLIQuerySample, NLISample]):
     ) -> None:
         super().__init__()
         self.format_query_fn = format_query_fn
-        self.few_shot_examples_path = few_shot_examples_path
         self.phrase_processor = get_ev_processor_singlephrase(
             log_dir=OUTPUT_DIR / "ev_processor_logs",
             ev_text_file_name=ev_text_file_name,
