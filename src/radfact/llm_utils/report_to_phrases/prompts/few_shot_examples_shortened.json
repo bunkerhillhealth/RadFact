@@ -115,5 +115,204 @@
       },
       "study_id": "study_id_9",
       "example_rationale": "Combine sentences."
+    },
+    {
+      "example_id": "few_shot5",
+      "findings_text": "The lungs are still hyperinflated, consistent with a history of asthma. Compared to the previous study, there are now hazy areas in the lower parts of both lungs. These may be caused by thickening of the bronchial walls or small airway disease, but there is no evidence of a specific lobe being affected. The cardiac and mediastinal silhouettes are unremarkable.",
+      "parsed_report": {
+        "id": "few_shot5",
+        "sentence_list": [
+          {
+            "orig": "The lungs are still hyperinflated, consistent with a history of asthma.",
+            "new": [
+              "The lungs are still hyperinflated."
+            ]
+          },
+          {
+            "orig": "Compared to the previous study, there are now hazy areas in the lower parts of both lungs. These may be caused by thickening of the bronchial walls or small airway disease, but there is no evidence of a specific lobe being affected.",
+            "new": [
+              "Compared to the previous study, there are now hazy areas in the lower parts of both lungs."
+            ]
+          },
+
+          {
+            "orig": "The cardiac and mediastinal silhouettes are unremarkable.",
+            "new": [
+              "The cardiac silhouette is unremarkable.",
+              "The mediastinal silhouette is unremarkable."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_5",
+      "example_rationale": "Clinical interpretation."
+    },
+
+    {
+      "example_id": "few_shot8",
+      "findings_text": "The lungs are clear without any signs of pneumonia. However, due to the patient's rotation, there is some overlap of structures in the left juxtamediastinal area. If there is a high suspicion of a lung infection, a non-rotated radiograph may be necessary to fully assess this region.",
+      "parsed_report": {
+        "id": "few_shot8",
+        "sentence_list": [
+
+          {
+            "orig": "The lungs are clear without any signs of pneumonia. However, due to the patient's rotation, there is some overlap of structures in the left juxtamediastinal area.",
+            "new": [
+              "The lungs are clear.",
+              "Overlap of structures in the left juxtamediastinal area."
+            ]
+          },
+          {
+            "orig": "If there is a high suspicion of a lung infection, a non-rotated radiograph may be necessary to fully assess this region.",
+            "new": [
+              ""
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_8",
+      "example_rationale": "Other irrelevant detail."
+    },
+    {
+      "example_id": "few_shot2",
+      "findings_text": "The perihilar opacities have increased since the last examination, along with pulmonary vascular congestion and widespread opacity. There is moderate cardiomegaly and a new small left-sided pleural effusion.",
+      "parsed_report": {
+        "id": "few_shot2",
+        "sentence_list": [
+          {
+            "orig": "The perihilar opacities have increased since the last examination, along with pulmonary vascular congestion and widespread opacity.",
+            "new": [
+              "The perihilar opacities have increased since the last examination.",
+              "Pulmonary vascular congestion has increased since the last examination.",
+              "Widespread opacity has increased since the last examination."
+            ]
+          },
+          {
+            "orig": "There is moderate cardiomegaly and a new small left-sided pleural effusion.",
+            "new": [
+              "There is moderate cardiomegaly.",
+              "New small left-sided pleural effusion."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_2",
+      "example_rationale": "Multiple positive findings"
+    },
+    {
+      "example_id": "few_shot3",
+      "findings_text": "Chest x-rays were taken in the upright and lateral positions. Diffuse peribronchovascular opacities are observed throughout the lungs, which may indicate diffuse bronchopneumonia. No lobar consolidation, effusion, or pneumothorax is detected.",
+      "parsed_report": {
+        "id": "few_shot3",
+        "sentence_list": [
+          {
+            "orig": "Chest x-rays were taken in the upright and lateral positions.",
+            "new": [
+              ""
+            ]
+          },
+          {
+            "orig": "Diffuse peribronchovascular opacities are observed throughout the lungs, which may indicate diffuse bronchopneumonia.",
+            "new": [
+              "Diffuse peribronchovascular opacities are observed throughout the lungs."
+            ]
+          },
+          {
+            "orig": "No lobar consolidation, effusion, or pneumothorax is detected.",
+            "new": [
+              "No lobar consolidation is detected.",
+              "No effusion is detected",
+              "No pneumothorax is detected."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_3",
+      "example_rationale": "Negative finding without location."
+    },
+    {
+      "example_id": "few_shot4",
+      "findings_text": "The left PICC line terminates in the upper SVC and the tracheostomy remains in its original position. Top normal heart size is stable.",
+      "parsed_report": {
+        "id": "few_shot4",
+        "sentence_list": [
+          {
+            "orig": "The left PICC line terminates in the upper SVC and the tracheostomy remains in its original position.",
+            "new": [
+              "The left PICC line terminates in the upper SVC.",
+              "Tracheostomy remains in its original position"
+            ]
+          },
+
+          {
+            "orig": "Top normal heart size is stable.",
+            "new": [
+              "Top normal heart size is stable."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_4",
+      "example_rationale": "Negative finding with location."
+    },
+    {
+      "example_id": "few_shot6",
+      "findings_text": "The patient is positioned with a slight rotation to the left. There is a relative opacity observed in the left mid-to-lower lung, possibly located in the lingula. This could be attributed to the patient's positioning, an underlying infection causing consolidation, or a contusion. The cardiac and mediastinal silhouettes are unremarkable. Thoracic scoliosis is present.",
+      "parsed_report": {
+        "id": "few_shot6",
+        "sentence_list": [
+          {
+            "orig": "The patient is positioned with a slight rotation to the left.",
+            "new": [
+              ""
+            ]
+          },
+
+          {
+            "orig": "There is a relative opacity observed in the left mid-to-lower lung, possibly located in the lingula. This could be attributed to the patient's positioning, an underlying infection causing consolidation, or a contusion.",
+            "new": [
+              "There is a relative opacity observed in the left mid-to-lower lung, possibly located in the lingula."
+            ]
+          },
+          {
+            "orig": "The cardiac and mediastinal silhouettes are unremarkable.",
+            "new": [
+              "The cardiac silhouette is unremarkable.",
+              "The mediastinal silhouette is unremarkable."
+            ]
+          },
+          {
+            "orig": "Thoracic scoliosis is present.",
+            "new": [
+              "Thoracic scoliosis is present."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_6",
+      "example_rationale": "Comment on technical quality."
+    },
+    {
+      "example_id": "few_shot7",
+      "findings_text": "The patient has undergone a right mastectomy. However, there is a new blunting of the left costophrenic angle, which could be due to effusion or pleural thickening. A chest CT is recommended for further evaluation, given the patient's history of malignancy.",
+      "parsed_report": {
+        "id": "few_shot7",
+        "sentence_list": [
+          {
+            "orig": "The patient has undergone a right mastectomy.",
+            "new": [
+              "The patient has undergone a right mastectomy."
+            ]
+          },
+          {
+            "orig": "However, there is a new blunting of the left costophrenic angle, which could be due to effusion or pleural thickening. A chest CT is recommended for further evaluation, given the patient's history of malignancy.",
+            "new": [
+              "There is new blunting of the left costrophrenic angle."
+            ]
+          }
+        ]
+      },
+      "study_id": "study_id_7",
+      "example_rationale": "Recommendation."
     }
   ]
