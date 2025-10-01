@@ -21,13 +21,13 @@
           {
             "evidence": [],
             "phrase": "A new right pleural effusion has developed right lower lung field.",
-            "status": "neutral",
+            "status": "not_entailment",
             "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
           },
           {
             "evidence": [],
             "phrase": "A new infiltrate has developed right lower lung field.",
-            "status": "neutral",
+            "status": "not_entailment",
             "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
           },
           {
@@ -36,7 +36,7 @@
               "Abnormal increased interstitial markings in the left mid lung."
             ],
             "phrase": "Left hemithorax remains clear.",
-            "status": "contradiction",
+            "status": "not_entailment",
             "reasoning": "The reference provides a contradictory observation 'There is an interstitial infiltrate at the left lung base.', which negates the hypothesis."
           }
         ],
@@ -52,7 +52,7 @@
               "Left hemithorax remains clear."
             ],
             "phrase": "There is an interstitial infiltrate at the left lung base.",
-            "status": "contradiction",
+            "status": "not_entailment",
             "reasoning": "The reference provides a contradictory observation 'Left hemithorax remains clear.', which negates the hypothesis."
           },
           {
@@ -68,7 +68,7 @@
               "Left hemithorax remains clear."
             ],
             "phrase": "Abnormal increased interstitial markings in the left mid lung.",
-            "status": "contradiction",
+            "status": "not_entailment",
             "reasoning": "The reference provides a contradictory observation 'Left hemithorax remains clear.', which negates the hypothesis."
           }
         ]
@@ -103,7 +103,7 @@
           {
             "evidence": [],
             "phrase": "There is a small calcified granuloma in the right lower lung field which is stable.",
-            "status": "neutral",
+            "status": "not_entailment",
             "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
           },
           {
@@ -111,7 +111,7 @@
               "There is mild residual infiltrate in the left lung base."
             ],
             "phrase": "Lungs are free of acute infiltrates.",
-            "status": "contradiction",
+            "status": "not_entailment",
             "reasoning": "The reference provides a contradictory observation 'There is mild residual infiltrate in the left lung base.', which negates the hypothesis."
           }
         ],
@@ -127,7 +127,7 @@
           {
             "evidence": [],
             "phrase": "There has been mild overall improved aeration.",
-            "status": "neutral",
+            "status": "not_entailment",
             "reasoning": "The reference does not contain clear evidence to support or refute the hypothesis, indicating neutrality."
           },
           {
@@ -135,7 +135,7 @@
               "Lungs are free of acute infiltrates."
             ],
             "phrase": "There is mild residual infiltrate in the left lung base.",
-            "status": "contradiction",
+            "status": "not_entailment",
             "reasoning": "The reference provides a contradictory observation 'Lungs are free of acute infiltrates.', which negates the hypothesis."
           }
         ]
