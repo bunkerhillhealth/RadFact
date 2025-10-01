@@ -20,16 +20,18 @@ PROMPTS_DIR = get_prompts_dir(task=PARSING_TASK)
 StudyIdType = str | int
 
 
-def get_report_to_phrases_processor(log_dir: Path | None = None) -> StructuredProcessor[str, ParsedReport]:
+def get_report_to_phrases_processor(reports_to_phrases_text_file_name: str, log_dir: Path | None = None, few_shot_examples_reports_to_phrases_filename: str | None = None) -> StructuredProcessor[str, ParsedReport]:
     """Return a processor for converting reports to phrases.
-
     :param log_dir: The directory to save logs.
     :return: The processor for report to phrase conversion.
     """
-    system_message_path = PROMPTS_DIR / "system_message.txt"
-    few_shot_examples_path = PROMPTS_DIR / "few_shot_examples_shortened.json"
+    few_shot_examples = None
+    system_message_path = PROMPTS_DIR / reports_to_phrases_text_file_name
+    if few_shot_examples_reports_to_phrases_filename is not None:
+        few_shot_examples_path = PROMPTS_DIR / few_shot_examples_reports_to_phrases_filename
+        few_shot_examples = load_examples_from_json(few_shot_examples_path)
     system_prompt = system_message_path.read_text()
-    few_shot_examples = load_examples_from_json(few_shot_examples_path)
+
     processor = StructuredProcessor(
         query_type=str,
         result_type=ParsedReport,
@@ -48,7 +50,7 @@ def get_findings_from_row(row: "pd.Series[Any]") -> str:
     return findings
 
 
-def get_report_to_phrases_engine(cfg: DictConfig, dataset_df: pd.DataFrame) -> LLMEngine:
+def get_report_to_phrases_engine(cfg: DictConfig, dataset_df: pd.DataFrame, reports_to_phrases_text_file_name: str = "system_message.txt", few_shot_examples_reports_to_phrases_filename: str | None = None) -> LLMEngine:
     """
     Create the processing engine for converting reports to phrases.
 
@@ -63,7 +65,7 @@ def get_report_to_phrases_engine(cfg: DictConfig, dataset_df: pd.DataFrame) -> L
     final_output_folder = get_subfolder(root, subfolder)
     log_dir = get_subfolder(root, "logs")
 
-    report_to_phrases_processor = get_report_to_phrases_processor(log_dir=log_dir)
+    report_to_phrases_processor = get_report_to_phrases_processor(reports_to_phrases_text_file_name=reports_to_phrases_text_file_name, log_dir=log_dir, few_shot_examples_reports_to_phrases_filename=few_shot_examples_reports_to_phrases_filename)
     id_col = cfg.processing.index_col
     dataset_df = dataset_df[[id_col, FINDINGS_SECTION]]
     engine = LLMEngine(

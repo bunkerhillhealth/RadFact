@@ -14,7 +14,7 @@ import polars as pl
 from radfact.cli.pipeline.base import CTMetricGenerationPipeline, XRMetricGenerationPipeline, MetricGenerationPipelineType
 from radfact.cloud.client import GCSClient, S3Client
 from radfact.cloud.types import GCSPath, S3Path
-from radfact.data_utils.grounded_phrase_list import GroundedPhraseList
+from radfact.data_utils.grounded_phrase_list import GroundedPhraseList, GroundedPhrase
 from radfact.llm_utils.report_to_phrases.processor import StudyIdType
 from radfact.metric.bootstrapping import MetricBootstrapper
 from radfact.metric.print_utils import print_bootstrap_results, print_results
@@ -57,6 +57,20 @@ def get_candidates_and_references_from_json(
     }
     return candidates, references
 
+def get_phrases_from_json_file(input_path: str) -> dict[StudyIdType, GroundedPhraseList]:
+    """gets candidates or references from a single json file"""
+    with open(input_path, "r", encoding="utf-8") as f:
+        phrase_list = json.load(f)
+
+    output = {}
+    for item in phrase_list:
+        phrases = GroundedPhraseList()
+        for sentence in item["sentence_list"]:
+            for new_text in sentence["new"]:
+                phrases.append(GroundedPhrase(text=new_text, boxes=None))
+        output[str(item["id"])] = phrases
+    return output
+
 
 def compute_radfact_scores(
     radfact_config_name: str | None,
@@ -69,20 +83,27 @@ def compute_radfact_scores(
     is_narrative_text: bool,
     bootstrap_samples: int,
     ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
-    allow_omitted_negatives: bool = False,
+    reports_to_phrases_text_file_name: str = "system_message.txt",
+    candidate_phrases: dict[StudyIdType, GroundedPhraseList] | None = None,
+    reference_phrases: dict[StudyIdType, GroundedPhraseList] | None = None,
+    few_shot_examples_reports_to_phrases_filename: str | None = None,
+    few_shot_examples_radfact_filename: str | None = None,
 ) -> dict[str, float]:
     radfact_metric = RadFactMetric(
         nli_config_name=radfact_config_name,
         phrase_config_name=phrases_config_name,
         is_narrative_text=is_narrative_text,
+        candidate_phrases=candidate_phrases,
+        reference_phrases=reference_phrases,
+        few_shot_examples_reports_to_phrases_filename=few_shot_examples_reports_to_phrases_filename,
+        few_shot_examples_radfact_filename=few_shot_examples_radfact_filename,
+        ev_text_file_name=ev_text_file_name,
+        reports_to_phrases_text_file_name=reports_to_phrases_text_file_name,
     )
-    # if bootstrap_samples == 0:
-    #     _, results = radfact_metric.compute_metric_score(candidates, references)
-    #     return results
     assert bootstrap_samples >= 1
     bootstrapper = MetricBootstrapper(metric=radfact_metric, num_samples=bootstrap_samples, seed=42)
     results_per_sample = radfact_metric.compute_results_per_sample(
-        candidates, references, ev_text_file_name, allow_omitted_negatives
+        candidates, references
     )
     results_per_sample_df = radfact_metric.results_per_sample_to_dataframe(
         results_per_sample, study_instance_uids, series_instance_uids, instance_numbers_current_frontal
@@ -144,6 +165,8 @@ def main() -> None:
         "`configs` directory. This is necessary for hydra initialization from the `configs` directory.",
         default=None,
     )
+    parser.add_argument('--few_shot_examples_reports_to_phrases_filename', help='The name of the few shot examples file for splitting reports into phrases. This can be found under the `report_to_phrases/prompts` directory.', default="few_shot_examples_shortened.json")
+    parser.add_argument('--few_shot_examples_radfact_filename',  help='The name of the few shot examples file for radfact entailment verification. This can be found under the `nli/prompts` directory.', default=None)
     parser.add_argument(
         "--phrases_config_name",
         type=str,
@@ -166,6 +189,20 @@ def main() -> None:
         "bootstrapping.",
         default=500,
     )
+    parser.add_argument(
+        "--input_phrases_path_candidate",
+        type=str,
+        help="Path to the json file containing the phrases from a previous run."
+        "if provided, will skip the report to phrases step and use these phrases.",
+        default=None,
+    )
+    parser.add_argument(
+        "--input_phrases_path_reference",
+        type=str,
+        help="Path to the json file containing the phrases from a previous run."
+        "if provided, will skip the report to phrases step and use these phrases.",
+        default=None,
+    )
 
     parser.add_argument(
         "--ev_text_file_name",
@@ -174,6 +211,10 @@ def main() -> None:
         help="The name of the system message file for the entailment verification processor. This is used to set up "
         "the entailment verification processor for RadFact. The file should be in the `radfact/llm_utils/nli/prompts` directory.",
     )
+    parser.add_argument('--reports_to_phrases_text_file_name', help='The name of the system message file for the report to phrases processor. This is used to set up '
+        "the report to phrases processor for RadFact. The file should be in the `report_to_phrases/prompts` directory.", default="system_message_ct_no_measurements.txt")
+
+    parser.add_argument("--limit", type=int, default=None, help="Limit the number of samples to process.")
 
     args = parser.parse_args()
 
@@ -201,7 +242,15 @@ def main() -> None:
     radfact_config_name = args.radfact_config_name
     phrases_config_name = args.phrases_config_name
     bootstrap_samples = args.bootstrap_samples
+    few_shot_examples_reports_to_phrases_filename = args.few_shot_examples_reports_to_phrases_filename
+    few_shot_examples_radfact_filename = args.few_shot_examples_radfact_filename
     pipeline = args.pipeline
+    limit = args.limit
+
+    if not is_narrative_text:
+        raise NotImplementedError("BH output format for grounded phrases is not yet supported.")
+
+
     if input_path_candidate is not None:
         assert input_path_candidate.suffix in [".csv", ".json"], "Input file must be a csv or json file."
         assert input_path_candidate.suffix == ".csv" or not is_narrative_text, (
@@ -212,25 +261,36 @@ def main() -> None:
     validate_config_file(phrases_config_name)
 
     assert args.ev_text_file_name.endswith(".txt"), "The entailment verification text file must be a .txt file."
+    assert args.reports_to_phrases_text_file_name.endswith(".txt"), "The report to phrases text file must be a .txt file."
+    assert args.few_shot_examples_reports_to_phrases_filename.endswith(".json"), "The few shot examples file must be a .json file."
+    assert args.few_shot_examples_radfact_filename.endswith(".json"), "The few shot examples file must be a .json file."
 
     candidates: InputDict
     references: InputDict
 
-    if is_narrative_text:
-        if pipeline == MetricGenerationPipelineType.XR:
-            candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
-                XRMetricGenerationPipeline.get_candidates_and_references(input_path_candidate, input_path_reference)
-            )
-        elif pipeline == MetricGenerationPipelineType.CT:
-            candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
-                CTMetricGenerationPipeline.get_candidates_and_references(combined_generated_path)
-            )
-        else:
-            raise ValueError(f"Invalid pipeline: {pipeline}")
-
+    if args.input_phrases_path_candidate is not None:
+        candidate_phrases = get_phrases_from_json_file(args.input_phrases_path_candidate)
     else:
-        # candidates, references = get_candidates_and_references_from_json(input_path)
-        raise NotImplementedError("BH output format for grounded phrases is not yet supported.")
+        candidate_phrases = None
+    if args.input_phrases_path_reference is not None:
+        reference_phrases = get_phrases_from_json_file(args.input_phrases_path_reference)
+    else:
+        reference_phrases = None
+
+
+    if pipeline == MetricGenerationPipelineType.XR:
+        candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
+            XRMetricGenerationPipeline.get_candidates_and_references(input_path_candidate, input_path_reference, limit=limit)
+        )
+
+
+    elif pipeline == MetricGenerationPipelineType.CT:
+        candidates, references, study_instance_uids, series_instance_uids, instance_numbers_current_frontal = (
+            CTMetricGenerationPipeline.get_candidates_and_references(combined_generated_path, limit=limit)
+        )
+    else:
+        raise ValueError(f"Invalid pipeline: {pipeline}")
+
 
     results_bootstrap_json, results_df = compute_radfact_scores(
         radfact_config_name=radfact_config_name,
@@ -243,86 +303,40 @@ def main() -> None:
         series_instance_uids=series_instance_uids,
         instance_numbers_current_frontal=instance_numbers_current_frontal,
         ev_text_file_name=args.ev_text_file_name,
-        allow_omitted_negatives=False,
+        reports_to_phrases_text_file_name=args.reports_to_phrases_text_file_name,
+        candidate_phrases=candidate_phrases,
+        reference_phrases=reference_phrases,
+        few_shot_examples_reports_to_phrases_filename=few_shot_examples_reports_to_phrases_filename,
+        few_shot_examples_radfact_filename=few_shot_examples_radfact_filename,
     )
-
-    results_bootstrap_allow_negs_json, results_allow_negs_df = compute_radfact_scores(
-        radfact_config_name=radfact_config_name,
-        phrases_config_name=phrases_config_name,
-        candidates=candidates,
-        references=references,
-        is_narrative_text=is_narrative_text,
-        bootstrap_samples=bootstrap_samples,
-        study_instance_uids=study_instance_uids,
-        series_instance_uids=series_instance_uids,
-        instance_numbers_current_frontal=instance_numbers_current_frontal,
-        ev_text_file_name="system_message_ev_singlephrase_updated_with_reasoning_negatives.txt",  # Hard-code for the negative ommission
-        allow_omitted_negatives=True,
-    )
+    logger.info(f"Processing {len(candidates)} samples")
 
     print_fn = print_results if bootstrap_samples == 0 else print_bootstrap_results
-    if is_narrative_text:
-        print("RadFact scores for narrative text samples - lower bound, penalized ommitted negatives")
-        print_fn(
-            results=results_bootstrap_json,
-            metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"],
-        )
-        print("RadFact scores for narrative text samples - upper bound, not penalized ommitted negatives")
-        print_fn(
-            results=results_bootstrap_allow_negs_json,
-            metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"],
-        )
-    else:
-        print("RadFact scores for grounded phrases samples")
-        print_fn(
-            results=results_bootstrap_json,
-            metrics=[
-                "logical_precision",
-                "logical_recall",
-                "logical_f1",
-                "spatial_precision",
-                "spatial_recall",
-                "spatial_f1",
-                "grounding_precision",
-                "grounding_recall",
-                "grounding_f1",
-                "num_llm_failures",
-            ],
-        )
 
-    output_path_lower_bound = output_dir / f"radfact_scores_lower_bound.json"
-    output_path_upper_bound = output_dir / f"radfact_scores_upper_bound.json"
+    logger.info(f"RadFact scores for narrative text samples - using {few_shot_examples_radfact_filename} for entailment verification")
+    print_fn(
+        results=results_bootstrap_json,
+        metrics=["logical_precision", "logical_recall", "logical_f1", "num_llm_failures"],
+    )
 
-    if isinstance(output_path_lower_bound, (GCSPath, S3Path)):
+
+    output_path = output_dir / f"radfact_scores.json"
+
+    if isinstance(output_path, (GCSPath, S3Path)):
         with tempfile.TemporaryDirectory() as tempdir:
             with open(Path(tempdir) / "tmp.json", "w", encoding="utf-8") as f:
                 json.dump(results_bootstrap_json, f, indent=2)
-            if isinstance(output_path_lower_bound, GCSPath):
-                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path_lower_bound)
-            elif isinstance(output_path_lower_bound, S3Client):
-                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path_lower_bound)
+            if isinstance(output_path, GCSPath):
+                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path)
+            elif isinstance(output_path, S3Client):
+                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path)
     else:
-        with open(output_path_lower_bound, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(results_bootstrap_json, f, indent=2)
 
-    results_df.to_csv(str(output_path_lower_bound)[:-5] + ".csv", index=False)
+    results_df.to_csv(str(output_path)[:-5] + ".csv", index=False)
 
-    logger.info(f"Lower bound results saved to {output_path_lower_bound}")
-
-    if isinstance(output_path_upper_bound, (GCSPath, S3Path)):
-        with tempfile.TemporaryDirectory() as tempdir:
-            with open(Path(tempdir) / "tmp.json", "w", encoding="utf-8") as f:
-                json.dump(results_bootstrap_allow_negs_json, f, indent=2)
-            if isinstance(output_path_upper_bound, GCSPath):
-                GCSClient.upload_file(Path(tempdir) / "tmp.json", output_path_upper_bound)
-            elif isinstance(output_path_upper_bound, S3Client):
-                S3Client.upload_file(Path(tempdir) / "tmp.json", output_path_upper_bound)
-    else:
-        with open(output_path_upper_bound, "w", encoding="utf-8") as f:
-            json.dump(results_bootstrap_allow_negs_json, f, indent=2)
-
-    results_allow_negs_df.to_csv(str(output_path_upper_bound)[:-5] + ".csv", index=False)
-    logger.info(f"Upper bound results saved to {output_path_upper_bound}")
+    logger.info(f"results saved to {output_path}")
 
 
 if __name__ == "__main__":
