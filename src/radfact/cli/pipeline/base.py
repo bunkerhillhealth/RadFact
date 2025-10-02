@@ -12,7 +12,7 @@ class MetricGenerationPipelineType(StrEnum):
 
 class MetricGenerationPipeline(ABC):
     @abstractmethod
-    def get_candidates_and_references(self, input_path_candidate: Path, input_path_reference: str) -> tuple[
+    def get_candidates_and_references(self, input_path_candidate: Path, input_path_reference: str, limit: int | None = None) -> tuple[
     dict[StudyIdType, str],
     dict[StudyIdType, str],
     dict[StudyIdType, str],
@@ -24,6 +24,7 @@ class MetricGenerationPipeline(ABC):
 class CTMetricGenerationPipeline(MetricGenerationPipeline):
     def get_candidates_and_references(
     combined_generated_path: Path,
+    limit: int | None = None,
 ) -> tuple[
     dict[StudyIdType, str],
     dict[StudyIdType, str],
@@ -42,6 +43,8 @@ class CTMetricGenerationPipeline(MetricGenerationPipeline):
                 "ground_truth_report",
             )
         )
+        if limit is not None:
+            findings_generation_samples = findings_generation_samples.limit(limit)
         findings_generation_samples = findings_generation_samples.collect()
         n_rows = findings_generation_samples.height
         candidates = dict(enumerate(findings_generation_samples["generated_report"].fill_null("")))
@@ -85,7 +88,8 @@ class XRMetricGenerationPipeline(MetricGenerationPipeline):
         findings_generation_samples = findings_generation_samples.with_columns(
             pl.col("unique_id").str.slice(0, 2).alias("datapoint_id_prefix")
         )
-
+        if limit is not None:
+            findings_generation_samples = findings_generation_samples.limit(limit)
         # Get the list of prefixes for the unique IDs
         prefixes = (
             findings_generation_samples.select(pl.col("datapoint_id_prefix"))

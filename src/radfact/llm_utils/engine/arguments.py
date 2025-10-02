@@ -56,6 +56,7 @@ class OpenaiAPIArguments(metaclass=ABCMeta):
                     params["azure_ad_token_provider"] = self.endpoint.token_provider
                 return params
             case EndpointType.CHAT_OPENAI:
+                logger.info(f"Using endpoint {self.endpoint.url} with deployment name {self.endpoint.deployment_name}")
                 return dict(
                     model=self.endpoint.deployment_name,
                     base_url=self.endpoint.url,
@@ -77,7 +78,7 @@ class LLMAPIArguments(OpenaiAPIArguments):
     """Chat API for an LLM expects arguments to match ChatOpenAI or AzureChatOpenAI."""
 
     temperature: float = field(default=0.0)
-    max_tokens: int = field(default=1024)
+    max_completion_tokens: int = field(default=2048)
     top_p: float = field(default=0.95)
     frequency_penalty: float = field(default=0.0)
     presence_penalty: float = field(default=0.0)
@@ -89,15 +90,19 @@ class LLMAPIArguments(OpenaiAPIArguments):
         keys match the expected arguments of the API. Check the OpenAI API documentation for more details.
         https://api.python.langchain.com/en/stable/chat_models/langchain_openai.chat_models.azure.AzureChatOpenAI.html#langchain_openai.chat_models.azure.AzureChatOpenAI
         """
-        return dict(
+        kwargs = dict(
             temperature=self.temperature,
-            max_tokens=self.max_tokens,
             n=self.n_completions,
             top_p=self.top_p,
             frequency_penalty=self.frequency_penalty,
             presence_penalty=self.presence_penalty,
             stop=self.stop,
         )
+
+        token_key = "max_completion_tokens" if self.endpoint.deployment_name == "gpt-5" else "max_tokens"
+        kwargs[token_key] = self.max_completion_tokens
+
+        return kwargs
 
     def get_params(self) -> dict[str, Any]:
         """Get LLM params as a dict."""

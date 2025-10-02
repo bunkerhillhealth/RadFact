@@ -1,9 +1,31 @@
 #@package __global__
 
 defaults:
-  - default
-  - override endpoints: chat_openai-gpt4o-mini
+  - endpoints: chat_openai-gpt5
   - _self_
+
+llm_api:
+  max_retries: 5
+  temperature: 1
+  max_completion_tokens: 6144
+  n_completions: 1
+  top_p: 1.0
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+  stop: null
+  timeout: null
+
+processing:
+  index_col: study_id
+  batch_size: 100
+  start_index: 0
+  end_index: null
+  output_filename: 'outputs.json'
+
+# The type of cache that should be set for langchain. This can be either "redis" or "sqlite".
+# Sqlite cache is useful for local development, it will be written to ~/.langchain.db
+# Redis cache is useful to share state across many evaluation runs in AzureML
+langchain_cache_type: null
 
 dataset:
   name: reports_to_phrases

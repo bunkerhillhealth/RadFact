@@ -72,7 +72,7 @@ class EvidencedPhrase(BaseModel):
     evidence: list[str] = Field(description="Phrase(s) from reference report supporting the logical state.")
     reasoning: str = Field(description="Reasoning for the logical state.")
     # Note that the status could either be NLIState or EVState
-    status: str = Field(description="Logical state of phrase given reference report.")
+    status: EVState = Field(description="Logical state of phrase given reference report.")
 
     def convert_to_binary(self) -> "EvidencedPhrase":
         """Convert the status to binary."""
@@ -84,7 +84,7 @@ class EvidencedPhrase(BaseModel):
             new_status = EVState.from_nli_state(NLIState(self.status))
             return self.copy(update={"status": new_status.value})
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     @classmethod
     def evidence_exists_or_not(cls, values: dict[str, Any]) -> dict[str, Any]:
         """

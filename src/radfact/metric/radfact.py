@@ -71,6 +71,13 @@ class RadFactMetric:
         image_size: int = 224,
         box_precision_threshold: float = 0.5,
         is_narrative_text: bool = False,
+        candidate_phrases: dict[StudyIdType, GroundedPhraseList] | None = None,
+        reference_phrases: dict[StudyIdType, GroundedPhraseList] | None = None,
+        reports_to_phrases_text_file_name: str = "system_message.txt",
+        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
+        few_shot_examples_reports_to_phrases_filename: str | None = None,
+        few_shot_examples_radfact_filename: str | None = None,
+
     ) -> None:
         """
         Initializes the RadFactMetric with the necessary configurations. We need to know the image size so we can
@@ -86,6 +93,12 @@ class RadFactMetric:
             findings section. We need to convert this to lists GroundedPhrase before conducting entailment verification.
             If False, we are running the metric on grounded reports, where the phrases are already in the correct
             format for entailment verification.
+        :param candidate_phrases: Dictionary of previously obtained study IDs and GroundedPhraseLists for the candidate report.
+        :param reference_phrases: Dictionary of previously obtained study IDs and GroundedPhraseLists for the reference report.
+        :param reports_to_phrases_text_file_name: The name of the file containing the system message for the report to phrases processor.
+        :param ev_text_file_name: The name of the file containing the system message for the NLI processor.
+        :param few_shot_examples_reports_to_phrases_filename: The name of the file containing the few-shot examples for the report to phrases processor.
+        :param few_shot_examples_radfact_filename: The name of the file containing the few-shot examples for the NLI processor.
         """
         self.llm_nli_cfg = init_hydra_config(nli_config_name or RADFACT_CONFIG)
         self.llm_phrase_cfg = init_hydra_config(phrase_config_name or REPORT_TO_PHRASES_CONFIG)
@@ -93,6 +106,12 @@ class RadFactMetric:
         self.box_precision_threshold = box_precision_threshold
         self.is_narrative_text = is_narrative_text
         self.meta_metrics: dict[str, float] = {}  # Metrics about the metric, derived from processors. Not per-sample.
+        self.candidate_phrases = candidate_phrases
+        self.reference_phrases = reference_phrases
+        self.reports_to_phrases_text_file_name = reports_to_phrases_text_file_name
+        self.ev_text_file_name = ev_text_file_name
+        self.few_shot_examples_reports_to_phrases_filename = few_shot_examples_reports_to_phrases_filename
+        self.few_shot_examples_radfact_filename = few_shot_examples_radfact_filename
 
     def _are_boxes_entailed(self, boxes: list[NormalizedBox] | None, evidence_boxes: list[NormalizedBox]) -> bool:
         """
@@ -206,7 +225,7 @@ class RadFactMetric:
         texts_as_str_df = pd.DataFrame(
             {id_col: study_id, FINDINGS_SECTION: texts_as_str[study_id]} for study_id in texts_as_str.keys()
         )
-        engine = get_report_to_phrases_engine(self.llm_phrase_cfg, texts_as_str_df)
+        engine = get_report_to_phrases_engine(self.llm_phrase_cfg, texts_as_str_df, self.reports_to_phrases_text_file_name, self.few_shot_examples_reports_to_phrases_filename)
         parsed_reports: list[ParsedReport] = engine.run()
         processed_texts = {
             parsed.id: parsed.to_grounded_phrases_list() for parsed in parsed_reports if parsed.id is not None
@@ -251,15 +270,26 @@ class RadFactMetric:
         """
         report_to_phrases_prefix = "report_to_phrases"
 
-        logger.info("CONVERTING GENERATIONS TO PHRASES...")
-        candidates_mm = self.convert_narrative_text_to_phrases(
-            candidates_mm, metric_prefix=f"{report_to_phrases_prefix}/generations"
-        )
+        if self.candidate_phrases is None:
+            logger.info("CONVERTING GENERATIONS TO PHRASES...")
+            candidates_mm = self.convert_narrative_text_to_phrases(
+                candidates_mm, metric_prefix=f"{report_to_phrases_prefix}/generations"
+            )
+        else:
+            logger.info("USING PREVIOUSLY OBTAINED CANDIDATE PHRASES...")
+            candidates_mm = self.candidate_phrases
+
         # Ideally we already have GroundedPhrase for the references, but if not we also process
-        logger.info("CONVERTING GROUND TRUTH TO PHRASES...")
-        references_mm = self.convert_narrative_text_to_phrases(
-            references_mm, metric_prefix=f"{report_to_phrases_prefix}/ground_truth"
-        )
+
+        if self.reference_phrases is None:
+            logger.info("CONVERTING GROUND TRUTH TO PHRASES...")
+            references_mm = self.convert_narrative_text_to_phrases(
+                references_mm, metric_prefix=f"{report_to_phrases_prefix}/ground_truth"
+            )
+        else:
+            logger.info("USING PREVIOUSLY OBTAINED REFERENCE PHRASES...")
+            references_mm = self.reference_phrases
+
         candidates_filtered, references_filtered = self.filter_candidates_and_references_to_common_keys(
             candidates_mm, references_mm
         )
@@ -290,8 +320,6 @@ class RadFactMetric:
         self,
         candidates: InputDict,
         references: InputDict,
-        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
-        allow_omitted_negatives: bool = False,
     ) -> PerSampleResultType:
         candidates_mm, references_mm = self.convert_input_to_multimodal(candidates, references)
         assert all(
@@ -310,12 +338,16 @@ class RadFactMetric:
         candidates_str_ids = {str(study_id): sequence for study_id, sequence in candidates_mm.items()}
         references_str_ids = {str(study_id): sequence for study_id, sequence in references_mm.items()}
 
+
+        logger.info(f"candidates_str_ids: {list(candidates_str_ids.items())[:5]}")
+        logger.info(f"references_str_ids: {list(references_str_ids.items())[:5]}")
+
         llm_ev_engine = get_report_nli_engine(
             self.llm_nli_cfg,
             candidates_str_ids,
             references_str_ids,
-            ev_text_file_name,
-            allow_omitted_negatives=allow_omitted_negatives,
+            self.ev_text_file_name,
+            self.few_shot_examples_radfact_filename,
         )
         processed_samples: list[NLISample] = llm_ev_engine.run()
         if llm_ev_engine.aggregated_processor_stats:
@@ -408,14 +440,10 @@ class RadFactMetric:
         self,
         candidates: InputDict,
         references: InputDict,
-        ev_text_file_name: str = "system_message_ev_singlephrase_updated_with_reasoning.txt",
-        allow_omitted_negatives: bool = False,
     ) -> ReturnType:
         results_per_sample = self.compute_results_per_sample(
             candidates=candidates,
             references=references,
-            ev_text_file_name=ev_text_file_name,
-            allow_omitted_negatives=allow_omitted_negatives,
         )
         return self.aggregate_results(results_per_sample)
 

@@ -1,0 +1,169 @@
+[
+    {
+      "example_id": "ct_few_shot1",
+      "findings_text": "Multiple venous collaterals are present in the anterior left chest wall and are associated with the anterior jugular vein at the level of the right sternoclavicular junction. Left subclavian vein collapsed (chronic occlusion pathology?). Trachea, both main bronchi are open. Calcific plaques are observed in the aortic arch. Other mediastinal main vascular structures, heart contour, size are normal. Thoracic aorta diameter is normal. Pericardial effusion-thickening was not observed. Thoracic esophagus calibration was normal and no significant tumoral wall thickening was detected. No enlarged lymph nodes in prevascular, pre-paratracheal, subcarinal or bilateral hilar-axillary pathological dimensions were detected. Linear atelectasis is present in both lung parenchyma. Subsegmental atelectasis is observed in the right middle lobe. Thickening of the bronchial wall and peribronchial budding tree-like reticulonodular densities are observed in the bilateral lower lobes. Peribronchial minimal consolidation is seen in the lower lobes in places. The left kidney partially entering the section is atrophic. The right kidney could not be evaluated because it did not enter the section. Other upper abdominal organs included in the sections are normal. No space-occupying lesion was detected in the liver that entered the cross-sectional area. Bilateral adrenal glands were normal and no space-occupying lesion was detected. There are osteophytes with anterior extension in the thoracic vertebrae. Multiple venous collaterals in the anterior left chest wall and collapsed appearance in the left subclavian vein (chronic occlusion?). Thickening of the bronchial wall in both lungs. Peribronchial reticulonodular densities in the lower lobes, minimal consolidations (infection process?). Atelectasis in both lungs. Thoracic spondylosis.",
+      "parsed_report": {
+        "id": "ct_few_shot1",
+        "sentence_list": [
+          {
+            "orig": "Multiple venous collaterals are present in the anterior left chest wall and are associated with the anterior jugular vein at the level of the right sternoclavicular junction.",
+            "new": [
+              "Multiple venous collaterals in the anterior left chest wall.",
+              "Multiple venous collaterals are associated with the anterior jugular vein at the right sternoclavicular junction."
+            ]
+          },
+          {
+            "orig": "Left subclavian vein collapsed (chronic occlusion pathology?).",
+            "new": [
+              "Left subclavian vein collapsed."
+            ]
+          },
+          {
+            "orig": "Trachea, both main bronchi are open.",
+            "new": [
+              "Trachea is open.",
+              "Both main bronchi are open."
+            ]
+          },
+          {
+            "orig": "Calcific plaques are observed in the aortic arch.",
+            "new": [
+              "Calcific plaques in the aortic arch."
+            ]
+          },
+          {
+            "orig": "Other mediastinal main vascular structures, heart contour, size are normal.",
+            "new": [
+              "Other mediastinal vascular structures are normal.",
+              "Heart contour is normal.",
+              "Heart size is normal."
+            ]
+          },
+          {
+            "orig": "Thoracic aorta diameter is normal.",
+            "new": [
+              "Thoracic aorta diameter is normal."
+            ]
+          },
+          {
+            "orig": "Pericardial effusion-thickening was not observed.",
+            "new": [
+              "No pericardial effusion or thickening."
+            ]
+          },
+          {
+            "orig": "Thoracic esophagus calibration was normal and no significant tumoral wall thickening was detected.",
+            "new": [
+              "Thoracic esophagus calibration was normal.",
+              "No significant esophageal wall thickening."
+            ]
+          },
+          {
+            "orig": "No enlarged lymph nodes in prevascular, pre-paratracheal, subcarinal or bilateral hilar-axillary pathological dimensions were detected.",
+            "new": [
+              "No enlarged lymph nodes in prevascular region.",
+              "No enlarged lymph nodes in pre-paratracheal region.",
+              "No enlarged lymph nodes in subcarinal region.",
+              "No enlarged lymph nodes in bilateral hilar-axillary regions."
+            ]
+          },
+          {
+            "orig": "Linear atelectasis is present in both lung parenchyma.",
+            "new": [
+              "Linear atelectasis in both lungs."
+            ]
+          },
+          {
+            "orig": "Subsegmental atelectasis is observed in the right middle lobe.",
+            "new": [
+              "Subsegmental atelectasis in the right middle lobe."
+            ]
+          },
+          {
+            "orig": "Thickening of the bronchial wall and peribronchial budding tree-like reticulonodular densities are observed in the bilateral lower lobes.",
+            "new": [
+              "Bronchial wall thickening in bilateral lower lobes.",
+              "Peribronchial reticulonodular densities in bilateral lower lobes."
+            ]
+          },
+          {
+            "orig": "Peribronchial minimal consolidation is seen in the lower lobes in places.",
+            "new": [
+              "Minimal peribronchial consolidation in lower lobes."
+            ]
+          },
+          {
+            "orig": "The left kidney partially entering the section is atrophic.",
+            "new": [
+              "Left kidney is atrophic."
+            ]
+          },
+          {
+            "orig": "The right kidney could not be evaluated because it did not enter the section.",
+            "new": [
+              "Right kidney not evaluated."
+            ]
+          },
+          {
+            "orig": "Other upper abdominal organs included in the sections are normal.",
+            "new": [
+              "Other upper abdominal organs are normal."
+            ]
+          },
+          {
+            "orig": "No space-occupying lesion was detected in the liver that entered the cross-sectional area.",
+            "new": [
+              "No hepatic lesion detected."
+            ]
+          },
+          {
+            "orig": "Bilateral adrenal glands were normal and no space-occupying lesion was detected.",
+            "new": [
+              "Bilateral adrenal glands are normal.",
+              "No adrenal lesion detected."
+            ]
+          },
+          {
+            "orig": "There are osteophytes with anterior extension in the thoracic vertebrae.",
+            "new": [
+              "Anterior osteophytes in thoracic vertebrae."
+            ]
+          },
+          {
+            "orig": "Multiple venous collaterals in the anterior left chest wall and collapsed appearance in the left subclavian vein (chronic occlusion?).",
+            "new": [
+              "Multiple venous collaterals in anterior left chest wall.",
+              "Collapsed appearance of left subclavian vein."
+            ]
+          },
+          {
+            "orig": "Thickening of the bronchial wall in both lungs.",
+            "new": [
+              "Thickening of the bronchial wall in both lungs."
+            ]
+          },
+          {
+            "orig": "Peribronchial reticulonodular densities in the lower lobes, minimal consolidations (infection process?).",
+            "new": [
+              "Peribronchial reticulonodular densities in lower lobes.",
+              "Minimal consolidations in lower lobes."
+            ]
+          },
+          {
+            "orig": "Atelectasis in both lungs.",
+            "new": [
+              "Atelectasis in both lungs."
+            ]
+          },
+          {
+            "orig": "Thoracic spondylosis.",
+            "new": [
+              "Thoracic spondylosis."
+            ]
+          }
+        ]
+      },
+      "study_id": "train_1_a_1.nii.gz",
+      "example_rationale": "Positive finding."
+    }
+  ]
