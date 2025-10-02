@@ -4,7 +4,7 @@ Please extract phrases from the radiology report which refer to objects, finding
 
 Rules:
 - If a sentence describes multiple findings, split them up into separate sentences.
-- Do not split a snetence into multiple sentences if those multiple sentences mean the same thing.
+- Do not split a sentence into multiple sentences if those multiple sentences mean the same thing.
 - Exclude clinical speculation or interpretation (e.g. "... highly suggestive of pneumonia").
 - Exclude recommendations (e.g. "Recommend a CT").
 - Exclude comments on the technical quality of the X-ray (e.g. "there are low lung volumes").
